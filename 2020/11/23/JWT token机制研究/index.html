@@ -21,14 +21,14 @@
 
 <script class="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+    var CONFIG = {"hostname":"zhangfengqilk.github.io","root":"/","scheme":"Mist","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
   <meta name="description" content="JWT token机制研究什么是JWT?JWT(json web token)， 是基于RFC7519定义的实现双方传输可信数据的安全机制。打个比方：JWT是有领导签字的文书，因为有领导签字，所以我确定对方是合法的，不是别人冒充的。那如何确认这个签字是合法的呢？这个涉及到JWT的签名机制，下面会详细讨论。 如何使用JWT? jwt.png 1 用户使用用户名&#x2F;密码，向认证服务器请求。 2 认证服务">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/2020/11/23/JWT%20token%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:title" content="PALM BEACH">
+<meta property="og:url" content="https://zhangfengqilk.github.io/2020/11/23/JWT%20token%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/index.html">
+<meta property="og:site_name" content="PALM BEACH">
 <meta property="og:description" content="JWT token机制研究什么是JWT?JWT(json web token)， 是基于RFC7519定义的实现双方传输可信数据的安全机制。打个比方：JWT是有领导签字的文书，因为有领导签字，所以我确定对方是合法的，不是别人冒充的。那如何确认这个签字是合法的呢？这个涉及到JWT的签名机制，下面会详细讨论。 如何使用JWT? jwt.png 1 用户使用用户名&#x2F;密码，向认证服务器请求。 2 认证服务">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2230743-e2db44af8e810d38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800/format/webp">
@@ -39,7 +39,7 @@
 <meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2230743-e2db44af8e810d38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800/format/webp">
 
 
-<link rel="canonical" href="http://example.com/2020/11/23/JWT%20token%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/">
+<link rel="canonical" href="https://zhangfengqilk.github.io/2020/11/23/JWT%20token%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/">
 
 
 <script class="page-configurations">
@@ -52,7 +52,7 @@
   };
 </script>
 
-  <title> | Hexo</title>
+  <title> | PALM BEACH</title>
   
 
 
@@ -112,7 +112,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Hexo</h1>
+      <h1 class="site-title">PALM BEACH</h1>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -208,7 +208,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/23/JWT%20token%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/">
+    <link itemprop="mainEntityOfPage" href="https://zhangfengqilk.github.io/2020/11/23/JWT%20token%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -217,7 +217,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="PALM BEACH">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -372,7 +372,7 @@
   </span>
   <span class="author" itemprop="copyrightHolder">John Doe</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
   </div>
 
     </div>
