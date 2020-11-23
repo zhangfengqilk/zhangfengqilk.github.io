@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangfengqilk.github.io","root":"/","scheme":"Mist","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+
+  <meta name="description" content="使用Mapstruct来进行实体与模型之间的映射操作在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。   mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，m">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PALM BEACH">
+<meta property="og:url" content="https://zhangfengqilk.github.io/2020/11/23/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="PALM BEACH">
+<meta property="og:description" content="使用Mapstruct来进行实体与模型之间的映射操作在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。   mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，m">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-23T02:01:01.493Z">
+<meta property="article:modified_time" content="2020-11-23T06:53:06.874Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zhangfengqilk.github.io/2020/11/23/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title> | PALM BEACH</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">PALM BEACH</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">使用Mapstruct来进行实体与模型之间的映射操作</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zhangfengqilk.github.io/2020/11/23/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2020-11-23 10:01:01 / Modified: 14:53:06" itemprop="dateCreated datePublished" datetime="2020-11-23T10:01:01+08:00">2020-11-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="使用Mapstruct来进行实体与模型之间的映射操作"><a href="#使用Mapstruct来进行实体与模型之间的映射操作" class="headerlink" title="使用Mapstruct来进行实体与模型之间的映射操作"></a>使用Mapstruct来进行实体与模型之间的映射操作</h1><p>在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。</p>
+<p>  mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，mapstruct就会自动的帮我们实现这个映射接口，避免了麻烦复杂的映射实现。</p>
+<p>  工程中引入mapstruct依赖</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- mapstruct --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-jdk8<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>这里定义实体Person</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+
+<p>这里定义模型PersonModel </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123; </span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>定义实体Person与模型PersonModel,这里两个类的属性一致。</p>
+<p>定义映射可以使用接口也可以使用静态类。</p>
+<p>&lt;1&gt;使用接口映射：</p>
+<p>    <a>简单实体映射：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里在PersonMapper 定义了两个map方法，第一个是单实体映射，第二个方法是List映射。在存盘之后，mapstruct会自动在target文件里为我们实现我们定义的映射接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Generated(</span></span><br><span class="line"><span class="meta">    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,</span></span><br><span class="line"><span class="meta">    date = &quot;2017-01-18T11:53:32+0800&quot;,</span></span><br><span class="line"><span class="meta">    comments = &quot;version: 1.0.0.Final, compiler: Eclipse JDT (IDE) 1.2.0.v20150514-0146, environment: Java 1.8.0_31 (Oracle Corporation)&quot;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonMapperImpl</span> <span class="keyword">implements</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PersonModel <span class="title">ma</span><span class="params">(Person entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ( entity == <span class="keyword">null</span> ) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        PersonModel personModel = <span class="keyword">new</span> PersonModel();</span><br><span class="line">        personModel.setName( entity.getName() );</span><br><span class="line">        personModel.setAge( entity.getAge() );</span><br><span class="line">        personModel.setPhone( entity.gePhone() );</span><br><span class="line">        <span class="keyword">return</span> personModel;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;PersonModel&gt; <span class="title">map</span><span class="params">(List&lt;Person&gt; entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ( entity == <span class="keyword">null</span> ) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;PersonModel&gt; list = <span class="keyword">new</span> ArrayList&lt;PersonModel&gt;();</span><br><span class="line">        <span class="keyword">for</span> ( Person person : entity ) &#123;</span><br><span class="line">            list.add( map( person) );</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> list;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在目标工程使用实体的时候只需要new一个PersonMapper的实例INSTANCE，就可以调用map()方法映射实体属性到模型中去了。<br>  但是这是在实体与模型的属性命名一致的情况下，这种情况下映射基本上不需要我们指定模型的哪个属性对应实体的哪个属性，在模型属性命名与实体属性命名不一致的情况下，还可以使用@Mapping(target = “模型属性”, source = “实体属性”)来指定的映射某个属性<br>  重新定义PersonModel跟Person<br>  这里定义实体Person</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone; </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>这里定义模型PersonModel </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String personName;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>其中将PersonModel中的name属性改为personName，这里的映射接口写法就可以写成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果model定义了在实体没有可以映射的属性时，就可以使用@Mapping(target = “模型属性”, ignore = true)来跳过不需要映射的模型属性了。</p>
+<p>  如下面重新定义实体Person和模型PersonModel</p>
+<p>  这里定义实体Person</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>这里定义模型PersonModel </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String personName; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">    <span class="keyword">private</span> String hand;</span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p> 这里的映射接口就应该改为:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line"></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 如果模型与实体均存在很多属性的情况下，映射接口的@Mapping注解很容易写得很长，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Personentity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p> 这样的程序就不可避免的写得很笨了。所以我们也可以使用default默认方法来定义映射接口，如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">(Person entity, Person personName, Person age, Person phone)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> PersonModel <span class="title">map</span><span class="params">(Person entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE.map(entity, entity.getName(), entity.getAge(), entity.getPhone());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">List&lt;PersonModel&gt; <span class="title">map</span><span class="params">(List&lt;Person&gt; entity)</span></span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>&lt;2&gt;使用静态类映射实体</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper(componentModel = &quot;spring&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">PesonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">abstract</span>  List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p> 虽然看起来写法差不多一直，但是使用静态类来映射有他的好处，最起码接口只能定义方法，无法写方法体，但是使用了静态类，就可以写上方法体了，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper(componentModel = &quot;spring&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">PesonMapper</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> PersonModel <span class="title">mapEighteen</span><span class="params">( Person entity)</span> </span>&#123;</span><br><span class="line">	  <span class="keyword">if</span> (entity.getName.equals(<span class="number">18</span>)) &#123;</span><br><span class="line">		   <span class="keyword">return</span> map(entity);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;;</span><br><span class="line">   <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">abstract</span>  List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>调用mapEighteen()就可以只映射实体属性age为18的实体了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/11/23/%E7%8E%A9%E8%BD%AC%20SpringBoot%202%20%E4%B9%8B%E6%95%B4%E5%90%88%20JWT%20%E4%B8%8B%E7%AF%87/" rel="prev" title="">
+                  <i class="fa fa-chevron-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/11/23/%E4%B8%80.%20%E4%BB%80%E4%B9%88%E6%98%AFRestTemplate/" rel="next" title="">
+                   <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangfengqilk.github.io","root":"/","scheme":"Mist","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+
+  <meta name="description" content="什么是JWT?JWT(json web token)， 是基于RFC7519定义的实现双方传输可信数据的安全机制。打个比方：JWT是有领导签字的文书，因为有领导签字，所以我确定对方是合法的，不是别人冒充的。那如何确认这个签字是合法的呢？这个涉及到JWT的签名机制，下面会详细讨论。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JWT token机制研究">
+<meta property="og:url" content="https://zhangfengqilk.github.io/2020/11/23/JWTtoken%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/index.html">
+<meta property="og:site_name" content="PALM BEACH">
+<meta property="og:description" content="什么是JWT?JWT(json web token)， 是基于RFC7519定义的实现双方传输可信数据的安全机制。打个比方：JWT是有领导签字的文书，因为有领导签字，所以我确定对方是合法的，不是别人冒充的。那如何确认这个签字是合法的呢？这个涉及到JWT的签名机制，下面会详细讨论。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2230743-e2db44af8e810d38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800/format/webp">
+<meta property="article:published_time" content="2020-11-23T06:15:28.047Z">
+<meta property="article:modified_time" content="2020-11-23T06:53:06.858Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2230743-e2db44af8e810d38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800/format/webp">
+
+
+<link rel="canonical" href="https://zhangfengqilk.github.io/2020/11/23/JWTtoken%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>JWT token机制研究 | PALM BEACH</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">PALM BEACH</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFJWT"><span class="nav-number">1.</span> <span class="nav-text">什么是JWT?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8JWT"><span class="nav-number">2.</span> <span class="nav-text">如何使用JWT?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BAheader"><span class="nav-number">3.</span> <span class="nav-text">1 创建header</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%88%9B%E5%BB%BApayload"><span class="nav-number">4.</span> <span class="nav-text">2 创建payload</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E5%88%9B%E5%BB%BA%E7%AD%BE%E5%90%8D%EF%BC%9A"><span class="nav-number">5.</span> <span class="nav-text">3创建签名：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JWT%E5%A6%82%E4%BD%95%E4%BF%9D%E6%8A%A4%E6%88%91%E4%BB%AC%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="nav-number">6.</span> <span class="nav-text">JWT如何保护我们的数据？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81JWT%EF%BC%9A"><span class="nav-number">7.</span> <span class="nav-text">验证JWT：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#refresh-token-%E6%9C%BA%E5%88%B6%EF%BC%9A"><span class="nav-number">8.</span> <span class="nav-text">refresh token 机制：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JWT%E5%92%8COAuth%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9A"><span class="nav-number">9.</span> <span class="nav-text">JWT和OAuth的关系：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A5%BD%E7%94%A8%E7%9A%84JWT-%E4%B8%89%E6%96%B9%E6%A1%86%E6%9E%B6%EF%BC%9A"><span class="nav-number">10.</span> <span class="nav-text">好用的JWT 三方框架：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A5%BD%E7%94%A8%E7%9A%84demo%EF%BC%9A"><span class="nav-number">11.</span> <span class="nav-text">好用的demo：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%EF%BC%9A"><span class="nav-number">12.</span> <span class="nav-text">引用：</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zhangfengqilk.github.io/2020/11/23/JWTtoken%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JWT token机制研究
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2020-11-23 14:15:28 / Modified: 14:53:06" itemprop="dateCreated datePublished" datetime="2020-11-23T14:15:28+08:00">2020-11-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h4 id="什么是JWT"><a href="#什么是JWT" class="headerlink" title="什么是JWT?"></a>什么是JWT?</h4><p>JWT(json web token)， 是基于<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3adfc2f8e15f#">RFC7519</a>定义的实现双方传输可信数据的安全机制。打个比方：JWT是有领导签字的文书，因为有领导签字，所以我确定对方是合法的，不是别人冒充的。那如何确认这个签字是合法的呢？这个涉及到JWT的签名机制，下面会详细讨论。</p>
+ <a id="more"></a>
+<h4 id="如何使用JWT"><a href="#如何使用JWT" class="headerlink" title="如何使用JWT?"></a>如何使用JWT?</h4><p><img src="https://upload-images.jianshu.io/upload_images/2230743-e2db44af8e810d38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800/format/webp" alt="img"></p>
+<p>jwt.png</p>
+<p>1 用户使用用户名/密码，向认证服务器请求。</p>
+<p>2 认证服务器认证通过后，生成JWT token返回给用户</p>
+<p>3 用户向应用服务器调用API请求资源时都需添加JWT token</p>
+<p>4 应用服务器接收请求后先取出JWT token进行校验，通过后返回有效资源，否则返回错误。</p>
+<p>JWT由三部分组成：Header，Payload和Signature。</p>
+<p>格式是以字符串信息，由逗号分隔</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">header</span><span class="selector-class">.payload</span><span class="selector-class">.signature</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="1-创建header"><a href="#1-创建header" class="headerlink" title="1 创建header"></a>1 创建header</h4><p>Header json格式如下</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;    <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;JWT&quot;</span>,    <span class="attr">&quot;alg&quot;</span> : <span class="string">&quot;HS256&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>type: 指明这个object是JWT.</p>
+<p>alg: 指明使用什么签名算法，上面例子中使用的是HMAC-SHA256 摘要算法。</p>
+<h4 id="2-创建payload"><a href="#2-创建payload" class="headerlink" title="2 创建payload"></a>2 创建payload</h4><p>Payload, 是存储在JWT的数据，在<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3adfc2f8e15f#">JWT协议</a>中定义为claims。</p>
+<p>json格式如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;    <span class="attr">&quot;iss&quot;</span> : <span class="string">&quot;gd.com&quot;</span>,    <span class="attr">&quot;sub&quot;</span> : <span class="string">&quot;userId&quot;</span>,    <span class="attr">&quot;exp&quot;</span> : <span class="string">&quot;3600&quot;</span>,    <span class="attr">&quot;iat&quot;</span> : <span class="string">&quot;2012553355235&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>协议定义了几个标准claims,</p>
+<p>“iss” issuer 请求JWT一方</p>
+<p>“sub” “subject”</p>
+<p>“exp” : 过期时间</p>
+<p>“iat” : “issued at”, 请求JWT的时间，可用来判断JWT是否过期。</p>
+<p>以上claim是可选的，根据业务添加，也可以根据实际需求自定义claim。但需要注意的是payload的大小会影响生成JWT token后的大小。过大的JWT token会导致延迟和性能下降等负面影响。</p>
+<h4 id="3创建签名："><a href="#3创建签名：" class="headerlink" title="3创建签名："></a>3创建签名：</h4><p>签名过程参考伪代码如下:</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data</span> = base64urlEncode( header ) + “.” + base64urlEncode( payload )signature = Hash( <span class="keyword">data</span>, secret );</span><br></pre></td></tr></table></figure>
+
+<p>使用base64对header和payload编码生成字符串，然后用逗号(.)拼接成data字串。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// headereyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9// payloadeyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ</span></span><br></pre></td></tr></table></figure>
+
+<p>对data字串使用摘要算法(比如的HS256)生成签名.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// signature-xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM</span></span><br></pre></td></tr></table></figure>
+
+<p>然后将三部分用逗号拼接逗号(.)生成JWT token</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JWT TokeneyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ.-xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="JWT如何保护我们的数据？"><a href="#JWT如何保护我们的数据？" class="headerlink" title="JWT如何保护我们的数据？"></a>JWT如何保护我们的数据？</h4><p>从JWT token的生成过程了解，JWT对数据进行的是签名而不是加密，所以JWT的payload部分不适合存放敏感数据，实际使用中需使用HTTPS，防止JWT token被非法拦截。理解加密和签名的区别，请<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3adfc2f8e15f#">参考此文</a></p>
+<h4 id="验证JWT："><a href="#验证JWT：" class="headerlink" title="验证JWT："></a>验证JWT：</h4><p>在如何使用JWT的第4步中，应用服务器获取用户请求带的JWT token后，取出header和payload重新签名然后和原签名比较，比较一致则验证通过，不一致则说明该用户是非法请求拒绝。</p>
+<h4 id="refresh-token-机制："><a href="#refresh-token-机制：" class="headerlink" title="refresh token 机制："></a>refresh token 机制：</h4><p>可参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3adfc2f8e15f#">https://vimsky.com/article/3601.html</a>，采用Auth0的处理思路。</p>
+<h4 id="JWT和OAuth的关系："><a href="#JWT和OAuth的关系：" class="headerlink" title="JWT和OAuth的关系："></a>JWT和OAuth的关系：</h4><p>两者没有任何关系，JWT是认证机制，OAuth是一套授权框架。OAuth的Access Token，Refresh Token也可以使用JWT形式。</p>
+<h4 id="好用的JWT-三方框架："><a href="#好用的JWT-三方框架：" class="headerlink" title="好用的JWT 三方框架："></a>好用的JWT 三方框架：</h4><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3adfc2f8e15f#">https://github.com/jwtk/jjwt</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3adfc2f8e15f#">https://github.com/pac4j/pac4j</a></p>
+<h4 id="好用的demo："><a href="#好用的demo：" class="headerlink" title="好用的demo："></a>好用的demo：</h4><p><a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://github.com/szerhusenBC/jwt-spring-security-demo">https://github.com/szerhusenBC/jwt-spring-security-demo</a></p>
+<h4 id="引用："><a href="#引用：" class="headerlink" title="引用："></a>引用：</h4><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3adfc2f8e15f#">5 Easy Steps to Understanding JSON Web Tokens (JWT)</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/11/23/MyBatis%E4%BD%BF%E7%94%A8association%E5%AE%9E%E7%8E%B0%E4%B8%80%E5%AF%B9%E4%B8%80%E7%BA%A7%E8%81%94%E6%9F%A5%E8%AF%A2%E7%9A%84%E5%87%A0%E7%A7%8D%E6%A1%88%E4%BE%8B/" rel="prev" title="MyBatis使用association实现一对一级联查询的几种案例">
+                  <i class="fa fa-chevron-left"></i> MyBatis使用association实现一对一级联查询的几种案例
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
