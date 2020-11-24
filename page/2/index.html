@@ -159,7 +159,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">22</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -192,6 +192,127 @@
       
 
       
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/23/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/23/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">Untitled</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2020-11-23 10:01:01 / Modified: 14:53:06" itemprop="dateCreated datePublished" datetime="2020-11-23T10:01:01+08:00">2020-11-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="使用Mapstruct来进行实体与模型之间的映射操作"><a href="#使用Mapstruct来进行实体与模型之间的映射操作" class="headerlink" title="使用Mapstruct来进行实体与模型之间的映射操作"></a>使用Mapstruct来进行实体与模型之间的映射操作</h1><p>在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。</p>
+<p>  mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，mapstruct就会自动的帮我们实现这个映射接口，避免了麻烦复杂的映射实现。</p>
+<p>  工程中引入mapstruct依赖</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- mapstruct --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-jdk8<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>这里定义实体Person</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+
+<p>这里定义模型PersonModel </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123; </span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>定义实体Person与模型PersonModel,这里两个类的属性一致。</p>
+<p>定义映射可以使用接口也可以使用静态类。</p>
+<p>&lt;1&gt;使用接口映射：</p>
+<p>    <a>简单实体映射：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里在PersonMapper 定义了两个map方法，第一个是单实体映射，第二个方法是List映射。在存盘之后，mapstruct会自动在target文件里为我们实现我们定义的映射接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Generated(</span></span><br><span class="line"><span class="meta">    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,</span></span><br><span class="line"><span class="meta">    date = &quot;2017-01-18T11:53:32+0800&quot;,</span></span><br><span class="line"><span class="meta">    comments = &quot;version: 1.0.0.Final, compiler: Eclipse JDT (IDE) 1.2.0.v20150514-0146, environment: Java 1.8.0_31 (Oracle Corporation)&quot;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonMapperImpl</span> <span class="keyword">implements</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PersonModel <span class="title">ma</span><span class="params">(Person entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ( entity == <span class="keyword">null</span> ) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        PersonModel personModel = <span class="keyword">new</span> PersonModel();</span><br><span class="line">        personModel.setName( entity.getName() );</span><br><span class="line">        personModel.setAge( entity.getAge() );</span><br><span class="line">        personModel.setPhone( entity.gePhone() );</span><br><span class="line">        <span class="keyword">return</span> personModel;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;PersonModel&gt; <span class="title">map</span><span class="params">(List&lt;Person&gt; entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ( entity == <span class="keyword">null</span> ) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;PersonModel&gt; list = <span class="keyword">new</span> ArrayList&lt;PersonModel&gt;();</span><br><span class="line">        <span class="keyword">for</span> ( Person person : entity ) &#123;</span><br><span class="line">            list.add( map( person) );</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> list;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在目标工程使用实体的时候只需要new一个PersonMapper的实例INSTANCE，就可以调用map()方法映射实体属性到模型中去了。<br>  但是这是在实体与模型的属性命名一致的情况下，这种情况下映射基本上不需要我们指定模型的哪个属性对应实体的哪个属性，在模型属性命名与实体属性命名不一致的情况下，还可以使用@Mapping(target = “模型属性”, source = “实体属性”)来指定的映射某个属性<br>  重新定义PersonModel跟Person<br>  这里定义实体Person</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone; </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>这里定义模型PersonModel </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String personName;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>其中将PersonModel中的name属性改为personName，这里的映射接口写法就可以写成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果model定义了在实体没有可以映射的属性时，就可以使用@Mapping(target = “模型属性”, ignore = true)来跳过不需要映射的模型属性了。</p>
+<p>  如下面重新定义实体Person和模型PersonModel</p>
+<p>  这里定义实体Person</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>这里定义模型PersonModel </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String personName; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">    <span class="keyword">private</span> String hand;</span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p> 这里的映射接口就应该改为:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line"></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 如果模型与实体均存在很多属性的情况下，映射接口的@Mapping注解很容易写得很长，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Personentity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p> 这样的程序就不可避免的写得很笨了。所以我们也可以使用default默认方法来定义映射接口，如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">(Person entity, Person personName, Person age, Person phone)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> PersonModel <span class="title">map</span><span class="params">(Person entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE.map(entity, entity.getName(), entity.getAge(), entity.getPhone());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">List&lt;PersonModel&gt; <span class="title">map</span><span class="params">(List&lt;Person&gt; entity)</span></span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>&lt;2&gt;使用静态类映射实体</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper(componentModel = &quot;spring&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">PesonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">abstract</span>  List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p> 虽然看起来写法差不多一直，但是使用静态类来映射有他的好处，最起码接口只能定义方法，无法写方法体，但是使用了静态类，就可以写上方法体了，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper(componentModel = &quot;spring&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">PesonMapper</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> PersonModel <span class="title">mapEighteen</span><span class="params">( Person entity)</span> </span>&#123;</span><br><span class="line">	  <span class="keyword">if</span> (entity.getName.equals(<span class="number">18</span>)) &#123;</span><br><span class="line">		   <span class="keyword">return</span> map(entity);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;;</span><br><span class="line">   <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">abstract</span>  List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>调用mapEighteen()就可以只映射实体属性age为18的实体了。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
     
 
 
@@ -1316,91 +1437,6 @@
 <p>3.特定功能或交互式<br>统一以.json 或者.html结尾<br>例如：<br>添加评论 <a target="_blank" rel="noopener" href="http://www.uxuexi.cn/addcomment.json">http://www.uxuexi.cn/addcomment.json</a></p>
 <h3 id="三、静态化"><a href="#三、静态化" class="headerlink" title="三、静态化"></a>三、静态化</h3><p>1、不经常更新的内容采用静态化。例如：<a target="_blank" rel="noopener" href="http://course.uxuexi.cn/detail/111.html%E3%80%82URL%E4%B8%AD%E4%B8%8D%E5%85%81%E8%AE%B8%E4%BD%BF%E7%94%A8?%E5%B8%A6%E5%8F%82%E6%95%B0%E3%80%82">http://course.uxuexi.cn/detail/111.html。URL中不允许使用?带参数。</a><br>2、实时更新的内容采用伪静态。例如：<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/user/111.html%E3%80%82URL%E4%B8%AD%E4%B8%8D%E5%85%81%E8%AE%B8%E4%BD%BF%E7%94%A8?%E5%B8%A6%E5%8F%82%E6%95%B0%E3%80%82">http://www.uxuexi.cn/user/111.html。URL中不允许使用?带参数。</a><br>特定功能或交互式用动态URL。</p>
 <h1 id="约定"><a href="#约定" class="headerlink" title="约定"></a>约定</h1><p>所有需要跳转页面的url必须进行统一的管理，统一使用cms:url自定义标签来实现，方便维护和优化。<br>例如<br>每次添加url，必须写上注释。<br>注释url功能，注释每一个参数是什么意思</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/23/springboot%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolTaskExecutor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/23/springboot%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolTaskExecutor/" class="post-title-link" itemprop="url">Untitled</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-      
-
-      <time title="Created: 2020-11-23 10:01:01 / Modified: 14:53:06" itemprop="dateCreated datePublished" datetime="2020-11-23T10:01:01+08:00">2020-11-23</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="82-springboot：-线程池ThreadPoolTaskExecutor"><a href="#82-springboot：-线程池ThreadPoolTaskExecutor" class="headerlink" title="82 springboot： 线程池ThreadPoolTaskExecutor"></a>82 springboot： 线程池ThreadPoolTaskExecutor</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> Executor <span class="title">getAsyncExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">     executor.setCorePoolSize(<span class="number">2</span>);<span class="comment">//核心线程大小</span></span><br><span class="line">     executor.setMaxPoolSize(<span class="number">2</span>);<span class="comment">//最大线程大小</span></span><br><span class="line">     executor.setQueueCapacity(<span class="number">500</span>);<span class="comment">//d队列最大容量</span></span><br><span class="line">executor.setThreadNamePrefix(<span class="string">&quot;Gith&quot;</span>);</span><br><span class="line">      executor.setKeepAliveSeconds(<span class="number">3000</span>);<span class="comment">//最大存活 时间</span></span><br><span class="line">     executor.initialize();</span><br><span class="line">     executor.submit(<span class="keyword">new</span> ThreadDemo());</span><br><span class="line">     <span class="keyword">return</span> executor;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>CorePoolSize 核心线程大小<br>keepAliveSeconds 线程池所能允许的空闲时间<br>maxPoolSize 线程池维护线程的最大数量<br>queueCapacity 线程池所能使用的缓冲队列</p>
-<p>当一个任务通过execute(方法，欲加到线程池中时；)<br>1 如果此时线程池中的数量小于corePoolSize，即使线程池中的线程都处于空闲状态，也要创建新的线程来处理被添加的任务。</p>
-<p>2，如果线程池中的数量等于corePoolsize，缓冲队列workQueue未满，那么任务被放入缓冲队列<br>3，如果此时线程池中的数量大于coreSize,缓冲队列workQueue满，并且线程池的数量小于maximumPoolSize,建立新的线程来处理被添加的任务。</p>
-<p>4 如果此时线程池中的数量大于corePoolSize,缓冲队列workQueue满，并且线程池中的数量等于maximumPoolSize，那么通过handler所指定的策略来处理任务。也就是：处理任务的优先级为: 核心线程corePoolSize, 任务队列workQueue,最大线程maximumPoolSize，如果三者都满了，使用handler处理被拒绝的任务。</p>
-<p>5，当线程池中的线程数量大于corePoolSize 时，如果某线程空闲时间超过keepAliveTime，线程将被终止。这样，线程池可以动态的调整池中的线程数。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ch2.taskexecutor;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment">//执行器</span></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executor;</span><br><span class="line"><span class="comment">//异步捕获助手</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.springframework.context.<span class="keyword">annotation</span>.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.<span class="keyword">annotation</span>.ComponentScan;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//配置</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.<span class="keyword">annotation</span>.AsyncConfigurer;</span><br><span class="line"><span class="comment">//异步支持注解</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.<span class="keyword">annotation</span>.EnableAsync;</span><br><span class="line"><span class="comment">//线程池</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment">//声明这是一个配置类</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="comment">//引入ch2.taskexecutor下面的@service,@component,@repository,@controller注册为bean</span></span><br><span class="line"><span class="meta">@ComponentScan(<span class="meta-string">&quot;ch2.taskexecutor&quot;</span>)</span></span><br><span class="line"><span class="comment">//开启注解：开启异步支持</span></span><br><span class="line"><span class="meta">@EnableAsync</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">//配置类实现AsyncConfigurer接口并重写AsyncConfigurer方法，并返回一个ThreadPoolTaskExecutor</span></span><br><span class="line"><span class="comment">//这样我们就得到了一个基于线程池的TaskExecutor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskExecutorConfig</span> <span class="title">implements</span> <span class="title">AsyncConfigurer</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">     </span><br><span class="line">    <span class="comment">//配置类实现AsyncConfigurer接口并重写AsyncConfigurer方法，并返回一个ThreadPoolTaskExecutor</span></span><br><span class="line">    <span class="comment">//这样我们就得到了一个基于线程池的TaskExecutor</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Executor getAsyncExecutor() &#123;</span><br><span class="line">        <span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();</span><br><span class="line">        <span class="comment">//如果池中的实际线程数小于corePoolSize,无论是否其中有空闲的线程，都会给新的任务产生新的线程</span></span><br><span class="line">        taskExecutor.setCorePoolSize(<span class="number">5</span>);</span><br><span class="line">        <span class="comment">//连接池中保留的最大连接数。Default: 15 maxPoolSize  </span></span><br><span class="line">        taskExecutor.setMaxPoolSize(<span class="number">10</span>);</span><br><span class="line">        <span class="comment">//queueCapacity 线程池所使用的缓冲队列</span></span><br><span class="line">        taskExecutor.setQueueCapacity(<span class="number">25</span>);</span><br><span class="line">        taskExecutor.initialize();</span><br><span class="line">        <span class="keyword">return</span> taskExecutor;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() &#123;</span><br><span class="line">        <span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ch2.taskexecutor;</span><br><span class="line"><span class="comment">//组件声明类</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"><span class="comment">//异步声明,如果在方法表示是异步方法，如果在类表示异步类。</span></span><br><span class="line"><span class="comment">//这里的方法自动被注入使用ThreadPoolTaskExecutor作为TaskExecutor（线程池）</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Async;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//声明为组件</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AsyncService</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">     </span><br><span class="line">    <span class="comment">//异步声明,如果在方法处表示是异步方法，如果在类处表示异步类（所有的方法都是异步方法）。</span></span><br><span class="line">    <span class="comment">//这里的方法自动被注入使用ThreadPoolTaskExecutor作为TaskExecutor（线程池）</span></span><br><span class="line">    <span class="meta">@Async</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">executorAsyncTask</span><span class="params">(Integer i)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;执行异步：&quot;</span> + i);</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">     </span><br><span class="line">    <span class="comment">//异步声明,如果在方法处表示是异步方法，如果在类处表示异步类（所有的方法都是异步方法）。</span></span><br><span class="line">    <span class="comment">//这里的方法自动被注入使用ThreadPoolTaskExecutor作为TaskExecutor（线程池）</span></span><br><span class="line">    <span class="meta">@Async</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">executorAsyncTaskPlus</span><span class="params">(Integer i)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;执行异步任务+1: &quot;</span> + (i+<span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ch2.taskexecutor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.AnnotationConfigApplicationContext;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">     </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">         </span><br><span class="line">        AnnotationConfigApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(TaskExecutorConfig.class);</span><br><span class="line">        AsyncService asyncService = context.getBean(AsyncService.class);</span><br><span class="line">         </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i&lt;<span class="number">10</span>; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            asyncService.executorAsyncTask(i);</span><br><span class="line">            asyncService.executorAsyncTaskPlus(i);</span><br><span class="line">        &#125;</span><br><span class="line">         </span><br><span class="line">        context.close();</span><br><span class="line">         </span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">执行异步：0</span><br><span class="line">执行异步任务+1: 1</span><br><span class="line">执行异步任务+1: 3</span><br><span class="line">执行异步：3</span><br><span class="line">执行异步任务+1: 4</span><br><span class="line">执行异步任务+1: 5</span><br><span class="line">执行异步：2</span><br><span class="line">执行异步：4</span><br><span class="line">执行异步任务+1: 6</span><br><span class="line">执行异步：5</span><br><span class="line">执行异步：1</span><br><span class="line">执行异步任务+1: 2</span><br><span class="line">执行异步任务+1: 8</span><br><span class="line">执行异步：7</span><br><span class="line">执行异步任务+1: 9</span><br><span class="line">执行异步任务+1: 7</span><br><span class="line">执行异步任务+1: 10</span><br><span class="line">执行异步：6</span><br><span class="line">执行异步：9</span><br><span class="line">执行异步：8</span><br></pre></td></tr></table></figure>
-
 
       
     </div>
