@@ -24,15 +24,15 @@
     var CONFIG = {"hostname":"palmbeach.gitee.io","root":"/","scheme":"Mist","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="使用Mapstruct来进行实体与模型之间的映射操作在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。   mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，m">
+  <meta name="description" content="使用Mapstruct来进行实体与模型之间的映射操作在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用Mapstruct来进行实体与模型之间的映射操作">
 <meta property="og:url" content="https://palmbeach.gitee.io/2020/11/24/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/index.html">
 <meta property="og:site_name" content="PALM BEACH">
-<meta property="og:description" content="使用Mapstruct来进行实体与模型之间的映射操作在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。   mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，m">
+<meta property="og:description" content="使用Mapstruct来进行实体与模型之间的映射操作在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-11-24T05:37:01.697Z">
-<meta property="article:modified_time" content="2020-11-24T05:37:01.697Z">
+<meta property="article:published_time" content="2020-11-24T05:39:19.794Z">
+<meta property="article:modified_time" content="2020-11-24T05:39:19.802Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 
@@ -230,7 +230,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-11-24 13:37:01" itemprop="dateCreated datePublished" datetime="2020-11-24T13:37:01+08:00">2020-11-24</time>
+      <time title="Created: 2020-11-24 13:39:19" itemprop="dateCreated datePublished" datetime="2020-11-24T13:39:19+08:00">2020-11-24</time>
     </span>
 
   
@@ -244,6 +244,7 @@
     
     <div class="post-body" itemprop="articleBody">
         <h1 id="使用Mapstruct来进行实体与模型之间的映射操作"><a href="#使用Mapstruct来进行实体与模型之间的映射操作" class="headerlink" title="使用Mapstruct来进行实体与模型之间的映射操作"></a>使用Mapstruct来进行实体与模型之间的映射操作</h1><p>在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。</p>
+<a id="more"></a>
 <p>  mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，mapstruct就会自动的帮我们实现这个映射接口，避免了麻烦复杂的映射实现。</p>
 <p>  工程中引入mapstruct依赖</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- mapstruct --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-jdk8<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
@@ -312,13 +313,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/" rel="prev" title="符合规范的url">
-                  <i class="fa fa-chevron-left"></i> 符合规范的url
+                <a href="/2020/11/24/%E7%8E%A9%E8%BD%AC%20SpringBoot%202%20%E4%B9%8B%E6%95%B4%E5%90%88%20JWT%20%E4%B8%8B%E7%AF%87/" rel="prev" title="玩转 SpringBoot 2 之整合 JWT 下篇">
+                  <i class="fa fa-chevron-left"></i> 玩转 SpringBoot 2 之整合 JWT 下篇
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/11/24/%E7%8E%A9%E8%BD%AC%20SpringBoot%202%20%E4%B9%8B%E6%95%B4%E5%90%88%20JWT%20%E4%B8%8B%E7%AF%87/" rel="next" title="玩转 SpringBoot 2 之整合 JWT 下篇">
-                  玩转 SpringBoot 2 之整合 JWT 下篇 <i class="fa fa-chevron-right"></i>
+                <a href="/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/" rel="next" title="符合规范的url">
+                  符合规范的url <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>

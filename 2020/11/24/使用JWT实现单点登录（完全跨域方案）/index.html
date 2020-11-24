@@ -24,17 +24,17 @@
     var CONFIG = {"hostname":"palmbeach.gitee.io","root":"/","scheme":"Mist","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="首先介绍一下什么是JSON Web Token（JWT）？官方文档是这样解释的：JSON Web Token（JWT）是一个开放标准（RFC 7519），它定义了一种紧凑且独立的方式，可以在各方之间作为JSON对象安全地传输信息。此信息可以通过数字签名进行验证和信任。JWT可以使用秘密（使用HMAC算法）或使用RSA或ECDSA的公钥&#x2F;私钥对进行签名。虽然JWT可以加密以在各方之间提供保密，但只将">
+  <meta name="description" content="首先介绍一下什么是JSON Web Token（JWT）？官方文档是这样解释的：JSON Web Token（JWT）是一个开放标准（RFC 7519），它定义了一种紧凑且独立的方式，可以在各方之间作为JSON对象安全地传输信息。此信息可以通过数字签名进行验证和信任。JWT可以使用秘密（使用HMAC算法）或使用RSA或ECDSA的公钥&#x2F;私钥对进行签名。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用JWT实现单点登录（完全跨域方案）">
 <meta property="og:url" content="https://palmbeach.gitee.io/2020/11/24/%E4%BD%BF%E7%94%A8JWT%E5%AE%9E%E7%8E%B0%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%EF%BC%88%E5%AE%8C%E5%85%A8%E8%B7%A8%E5%9F%9F%E6%96%B9%E6%A1%88%EF%BC%89/index.html">
 <meta property="og:site_name" content="PALM BEACH">
-<meta property="og:description" content="首先介绍一下什么是JSON Web Token（JWT）？官方文档是这样解释的：JSON Web Token（JWT）是一个开放标准（RFC 7519），它定义了一种紧凑且独立的方式，可以在各方之间作为JSON对象安全地传输信息。此信息可以通过数字签名进行验证和信任。JWT可以使用秘密（使用HMAC算法）或使用RSA或ECDSA的公钥&#x2F;私钥对进行签名。虽然JWT可以加密以在各方之间提供保密，但只将">
+<meta property="og:description" content="首先介绍一下什么是JSON Web Token（JWT）？官方文档是这样解释的：JSON Web Token（JWT）是一个开放标准（RFC 7519），它定义了一种紧凑且独立的方式，可以在各方之间作为JSON对象安全地传输信息。此信息可以通过数字签名进行验证和信任。JWT可以使用秘密（使用HMAC算法）或使用RSA或ECDSA的公钥&#x2F;私钥对进行签名。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://img-blog.csdn.net/20180906132049199?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjg3MzkzNw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
 <meta property="og:image" content="https://img-blog.csdn.net/20180906132531764?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjg3MzkzNw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
 <meta property="article:published_time" content="2020-11-24T05:25:26.000Z">
-<meta property="article:modified_time" content="2020-11-24T05:36:48.861Z">
+<meta property="article:modified_time" content="2020-11-24T05:39:32.494Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img-blog.csdn.net/20180906132049199?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjg3MzkzNw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
@@ -234,7 +234,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2020-11-24 13:25:26 / Modified: 13:36:48" itemprop="dateCreated datePublished" datetime="2020-11-24T13:25:26+08:00">2020-11-24</time>
+      <time title="Created: 2020-11-24 13:25:26 / Modified: 13:39:32" itemprop="dateCreated datePublished" datetime="2020-11-24T13:25:26+08:00">2020-11-24</time>
     </span>
 
   
@@ -247,7 +247,9 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="首先介绍一下什么是JSON-Web-Token（JWT）？"><a href="#首先介绍一下什么是JSON-Web-Token（JWT）？" class="headerlink" title="首先介绍一下什么是JSON Web Token（JWT）？"></a>首先介绍一下什么是JSON Web Token（JWT）？</h2><p><em>官方文档是这样解释的</em>：JSON Web Token（JWT）是一个开放标准（RFC 7519），它定义了一种紧凑且独立的方式，可以在各方之间作为JSON对象安全地传输信息。此信息可以通过数字签名进行验证和信任。JWT可以使用秘密（使用HMAC算法）或使用RSA或ECDSA的公钥/私钥对进行签名。<br>虽然JWT可以加密以在各方之间提供保密，但只将专注于签名令牌。签名令牌可以验证其中包含的声明的完整性，而加密令牌则隐藏其他方的声明。当使用公钥/私钥对签署令牌时，签名还证明只有持有私钥的一方是签署私钥的一方。</p>
+        <h2 id="首先介绍一下什么是JSON-Web-Token（JWT）？"><a href="#首先介绍一下什么是JSON-Web-Token（JWT）？" class="headerlink" title="首先介绍一下什么是JSON Web Token（JWT）？"></a>首先介绍一下什么是JSON Web Token（JWT）？</h2><p><em>官方文档是这样解释的</em>：JSON Web Token（JWT）是一个开放标准（RFC 7519），它定义了一种紧凑且独立的方式，可以在各方之间作为JSON对象安全地传输信息。此信息可以通过数字签名进行验证和信任。JWT可以使用秘密（使用HMAC算法）或使用RSA或ECDSA的公钥/私钥对进行签名。</p>
+<a id="more"></a>
+<p>虽然JWT可以加密以在各方之间提供保密，但只将专注于签名令牌。签名令牌可以验证其中包含的声明的完整性，而加密令牌则隐藏其他方的声明。当使用公钥/私钥对签署令牌时，签名还证明只有持有私钥的一方是签署私钥的一方。</p>
 <p>通俗来讲，JWT是一个含签名并携带用户相关信息的加密串，页面请求校验登录接口时，请求头中携带JWT串到后端服务，后端通过签名加密串匹配校验，保证信息未被篡改。校验通过则认为是可靠的请求，将正常返回数据。</p>
 <h2 id="什么情况下使用JWT比较适合？"><a href="#什么情况下使用JWT比较适合？" class="headerlink" title="什么情况下使用JWT比较适合？"></a>什么情况下使用JWT比较适合？</h2><ul>
 <li>授权：这是最常见的使用场景，解决单点登录问题。因为JWT使用起来轻便，开销小，服务端不用记录用户状态信息（无状态），所以使用比较广泛；</li>

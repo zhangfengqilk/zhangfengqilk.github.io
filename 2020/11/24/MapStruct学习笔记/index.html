@@ -24,17 +24,17 @@
     var CONFIG = {"hostname":"palmbeach.gitee.io","root":"/","scheme":"Mist","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="12MapStruct版本号是1.2.0.Finalhttp:&#x2F;&#x2F;mapstruct.org&#x2F;documentation&#x2F;stable&#x2F;reference&#x2F;html&#x2F;12  学习mapstruct主要就是看文档，还有一个小窍门是编译之后，会直接在相应的包下生成一个xxxImpl.class，直接查看此类就可以了 项目配置最小化的">
+  <meta name="description" content="12MapStruct版本号是1.2.0.Finalhttp:&#x2F;&#x2F;mapstruct.org&#x2F;documentation&#x2F;stable&#x2F;reference&#x2F;html&#x2F;12">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MapStruct学习笔记">
 <meta property="og:url" content="https://palmbeach.gitee.io/2020/11/24/MapStruct%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="PALM BEACH">
-<meta property="og:description" content="12MapStruct版本号是1.2.0.Finalhttp:&#x2F;&#x2F;mapstruct.org&#x2F;documentation&#x2F;stable&#x2F;reference&#x2F;html&#x2F;12  学习mapstruct主要就是看文档，还有一个小窍门是编译之后，会直接在相应的包下生成一个xxxImpl.class，直接查看此类就可以了 项目配置最小化的">
+<meta property="og:description" content="12MapStruct版本号是1.2.0.Finalhttp:&#x2F;&#x2F;mapstruct.org&#x2F;documentation&#x2F;stable&#x2F;reference&#x2F;html&#x2F;12">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://img-blog.csdn.net/20180614164051323?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3Z0bmV3cw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
 <meta property="og:image" content="https://img-blog.csdn.net/20180614164057999?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3Z0bmV3cw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
 <meta property="article:published_time" content="2020-11-24T05:27:01.000Z">
-<meta property="article:modified_time" content="2020-11-24T05:32:42.076Z">
+<meta property="article:modified_time" content="2020-11-24T05:41:24.281Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img-blog.csdn.net/20180614164051323?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3Z0bmV3cw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
@@ -234,7 +234,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2020-11-24 13:27:01 / Modified: 13:32:42" itemprop="dateCreated datePublished" datetime="2020-11-24T13:27:01+08:00">2020-11-24</time>
+      <time title="Created: 2020-11-24 13:27:01 / Modified: 13:41:24" itemprop="dateCreated datePublished" datetime="2020-11-24T13:27:01+08:00">2020-11-24</time>
     </span>
 
   
@@ -249,6 +249,7 @@
     <div class="post-body" itemprop="articleBody">
         <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MapStruct版本号是1.2.0.Final</span><br><span class="line">http:&#x2F;&#x2F;mapstruct.org&#x2F;documentation&#x2F;stable&#x2F;reference&#x2F;html&#x2F;12</span><br></pre></td></tr></table></figure>
 
+<a id="more"></a>
 <p>学习mapstruct主要就是看文档，还有一个小窍门是编译之后，会直接在相应的包下生成一个xxxImpl.class，直接查看此类就可以了</p>
 <h1 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h1><p>最小化的配置：</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">plugins &#123;</span><br><span class="line">    ...</span><br><span class="line">    id <span class="string">&#x27;net.ltgt.apt&#x27;</span> version <span class="string">&#x27;0.8&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">dependencies &#123;</span><br><span class="line">    ...</span><br><span class="line">    compile <span class="string">&#x27;org.mapstruct:mapstruct-jdk8:1.2.0.Final&#x27;</span></span><br><span class="line"></span><br><span class="line">    apt <span class="string">&#x27;org.mapstruct:mapstruct-processor:1.2.0.Final&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">compileJava &#123;</span><br><span class="line">    options.compilerArgs = [</span><br><span class="line">        <span class="string">&#x27;-Amapstruct.suppressGeneratorTimestamp=true&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;-Amapstruct.suppressGeneratorVersionInfoComment=true&#x27;</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line">..<span class="number">.12345678910111213141516171819</span></span><br></pre></td></tr></table></figure>
@@ -347,8 +348,8 @@
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/11/24/springboot%20DELETE%20%E6%96%B9%E6%B3%95%E4%BC%A0%E5%8F%82%E7%9A%84%E6%96%B9%E5%BC%8F/" rel="next" title="springboot DELETE 方法传参的方式">
-                  springboot DELETE 方法传参的方式 <i class="fa fa-chevron-right"></i>
+                <a href="/2020/11/24/%E4%B8%80.%20%E4%BB%80%E4%B9%88%E6%98%AFRestTemplate/" rel="next" title="一. 什么是RestTemplate">
+                  一. 什么是RestTemplate <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>

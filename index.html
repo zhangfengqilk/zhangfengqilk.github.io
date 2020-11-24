@@ -200,7 +200,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E4%B8%80.%20%E4%BB%80%E4%B9%88%E6%98%AFRestTemplate/">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/BlockingQueue%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -214,7 +214,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/11/24/%E4%B8%80.%20%E4%BB%80%E4%B9%88%E6%98%AFRestTemplate/" class="post-title-link" itemprop="url">一. 什么是RestTemplate</a>
+            <a href="/2020/11/24/BlockingQueue%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">BlockingQueue及其实现</a>
         </h2>
 
         <div class="post-meta-container">
@@ -225,7 +225,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-11-24 13:37:32" itemprop="dateCreated datePublished" datetime="2020-11-24T13:37:32+08:00">2020-11-24</time>
+      <time title="Created: 2020-11-24 13:41:41" itemprop="dateCreated datePublished" datetime="2020-11-24T13:41:41+08:00">2020-11-24</time>
     </span>
 
   
@@ -238,33 +238,16 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h3 id="一-什么是RestTemplate"><a href="#一-什么是RestTemplate" class="headerlink" title="一. 什么是RestTemplate"></a>一. 什么是RestTemplate</h3><p>传统情况下在java代码里访问restful服务，一般使用<code>Apache</code>的<code>HttpClient</code>。不过此种方法使用起来太过繁琐。spring提供了一种简单便捷的模板类来进行操作，这就是<code>RestTemplate</code>。</p>
-<h3 id="二-一个简单的例子。"><a href="#二-一个简单的例子。" class="headerlink" title="二.一个简单的例子。"></a>二.一个简单的例子。</h3><p>定义一个简单的restful接口</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span></span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@RequestMapping(value = <span class="meta-string">&quot;testPost&quot;</span>, method = RequestMethod.POST)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseBean testPost(<span class="meta">@RequestBody</span> RequestBean requestBean)</span><br><span class="line">    &#123;</span><br><span class="line">        ResponseBean responseBean = new ResponseBean();</span><br><span class="line">        responseBean.setRetCode(<span class="string">&quot;0000&quot;</span>);</span><br><span class="line">        responseBean.setRetMsg(<span class="string">&quot;succ&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> responseBean;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用<code>RestTemplate</code>访问该服务</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//请求地址</span></span><br><span class="line"><span class="built_in">String</span> url = <span class="string">&quot;http://localhost:8080/testPost&quot;</span>;</span><br><span class="line"><span class="comment">//入参</span></span><br><span class="line">RequestBean requestBean = <span class="keyword">new</span> RequestBean();</span><br><span class="line">requestBean.setTest1(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">requestBean.setTest2(<span class="string">&quot;2&quot;</span>);</span><br><span class="line">requestBean.setTest3(<span class="string">&quot;3&quot;</span>);</span><br><span class="line"></span><br><span class="line">RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span><br><span class="line">ResponseBean responseBean = restTemplate.postForObject(url, requestBean, ResponseBean.<span class="keyword">class</span>);</span><br></pre></td></tr></table></figure>
-
-<p>从这个例子可以看出，使用<code>restTemplate</code>访问restful接口非常的<strong>简单粗暴无脑</strong>。<code>(url, requestMap, ResponseBean.class)</code>这三个参数分别代表 请求地址、请求参数、HTTP响应转换被转换成的对象类型。</p>
-<p>RestTemplate方法的名称遵循命名约定，第一部分指出正在调用什么HTTP方法，第二部分指示返回的内容。本例中调用了<code>restTemplate.postForObject</code>方法，<code>post</code>指调用了HTTP的post方法，<code>Object</code>指将HTTP响应转换为您选择的<strong>对象类型</strong>。还有其他很多类似的方法，有兴趣的同学可以<a target="_blank" rel="noopener" href="http://docs.spring.io/spring-framework/docs/4.3.7.RELEASE/javadoc-api/org/springframework/web/client/RestTemplate.html">参考官方api</a>。</p>
-<h3 id="三-手动指定转换器-HttpMessageConverter"><a href="#三-手动指定转换器-HttpMessageConverter" class="headerlink" title="三.手动指定转换器(HttpMessageConverter)"></a>三.手动指定转换器(HttpMessageConverter)</h3><p>我们知道，调用reseful接口传递的数据内容是json格式的字符串，返回的响应也是json格式的字符串。然而<code>restTemplate.postForObject</code>方法的请求参数<code>RequestBean</code>和返回参数<code>ResponseBean</code>却都是java类。是<code>RestTemplate</code>通过<code>HttpMessageConverter</code>自动帮我们做了转换的操作。</p>
-<p>默认情况下<code>RestTemplate</code>自动帮我们注册了一组<code>HttpMessageConverter</code>用来处理一些不同的<code>contentType</code>的请求。<br>如<code>StringHttpMessageConverter</code>来处理<code>text/plain</code>;<code>MappingJackson2HttpMessageConverter</code>来处理<code>application/json</code>;<code>MappingJackson2XmlHttpMessageConverter</code>来处理<code>application/xml</code>。<br>你可以在<code>org.springframework.http.converter</code>包下找到所有spring帮我们实现好的转换器。<br>如果现有的转换器不能满足你的需求，你还可以实现<code>org.springframework.http.converter.HttpMessageConverter</code>接口自己写一个。详情<a target="_blank" rel="noopener" href="http://docs.spring.io/spring-framework/docs/4.3.7.RELEASE/javadoc-api/org/springframework/http/converter/package-summary.html">参考官方api</a>。</p>
-<p>选好了<code>HttpMessageConverter</code>后怎么把它注册到我们的<code>RestTemplate</code>中呢。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span><br><span class="line"><span class="comment">//获取RestTemplate默认配置好的所有转换器</span></span><br><span class="line">List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = restTemplate.getMessageConverters();</span><br><span class="line"><span class="comment">//默认的MappingJackson2HttpMessageConverter在第7个 先把它移除掉</span></span><br><span class="line">messageConverters.<span class="keyword">remove</span>(<span class="number">6</span>);</span><br><span class="line"><span class="comment">//添加上GSON的转换器</span></span><br><span class="line">messageConverters.<span class="keyword">add</span>(<span class="number">6</span>, <span class="keyword">new</span> GsonHttpMessageConverter());</span><br></pre></td></tr></table></figure>
-
-<p>这个简单的例子展示了如何使用<code>GsonHttpMessageConverter</code>替换掉默认用来处理<code>application/json</code>的<code>MappingJackson2HttpMessageConverter</code>。</p>
-<h3 id="四-设置底层连接方式"><a href="#四-设置底层连接方式" class="headerlink" title="四.设置底层连接方式"></a>四.设置底层连接方式</h3><p>要创建一个<code>RestTemplate</code>的实例，您可以像上述例子中简单地调用默认的无参数构造函数。这将使用<code>java.net</code>包中的标准Java类作为底层实现来创建HTTP请求。<br>但很多时候我们需要像传统的<code>HttpClient</code>那样设置HTTP请求的一些属性。<code>RestTemplate</code>使用了一种很偷懒的方式实现了这个需求，那就是直接使用一个<code>HttpClient</code>作为底层实现……</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//生成一个设置了连接超时时间、请求超时时间、异常最大重试次数的httpClient</span></span><br><span class="line">RequestConfig config = RequestConfig.custom().setConnectionRequestTimeout(<span class="number">10000</span>).setConnectTimeout(<span class="number">10000</span>).setSocketTimeout(<span class="number">30000</span>).build();</span><br><span class="line">HttpClientBuilder builder = HttpClientBuilder.create().setDefaultRequestConfig(config).setRetryHandler(<span class="keyword">new</span> DefaultHttpRequestRetryHandler(<span class="number">5</span>, <span class="literal">false</span>));</span><br><span class="line">HttpClient httpClient = builder.build();</span><br><span class="line"><span class="comment">//使用httpClient创建一个ClientHttpRequestFactory的实现</span></span><br><span class="line">ClientHttpRequestFactory requestFactory = <span class="keyword">new</span> HttpComponentsClientHttpRequestFactory(httpClient);</span><br><span class="line"> <span class="comment">//ClientHttpRequestFactory作为参数构造一个使用作为底层的RestTemplate</span></span><br><span class="line">RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate(requestFactory);</span><br></pre></td></tr></table></figure>
-
-<h3 id="五-设置拦截器-ClientHttpRequestInterceptor"><a href="#五-设置拦截器-ClientHttpRequestInterceptor" class="headerlink" title="五.设置拦截器(ClientHttpRequestInterceptor)"></a>五.设置拦截器(ClientHttpRequestInterceptor)</h3><p>有时候我们需要对请求做一些通用的拦截设置，这就可以使用拦截器进行处理。拦截器需要我们实现<code>org.springframework.http.client.ClientHttpRequestInterceptor</code>接口自己写。</p>
-<p>举个简单的例子，写一个在header中根据请求内容和地址添加令牌的拦截器。</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">TokenInterceptor</span> <span class="keyword">implements</span> <span class="title">ClientHttpRequestInterceptor</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//请求地址</span></span><br><span class="line">        <span class="built_in">String</span> checkTokenUrl = request.getURI().getPath();</span><br><span class="line">        <span class="comment">//token有效时间</span></span><br><span class="line">        <span class="built_in">int</span> ttTime = (<span class="built_in">int</span>) (System.currentTimeMillis() / <span class="number">1000</span> + <span class="number">1800</span>);</span><br><span class="line">        <span class="comment">//请求方法名 POST、GET等</span></span><br><span class="line">        <span class="built_in">String</span> methodName = request.getMethod().name();</span><br><span class="line">        <span class="comment">//请求内容</span></span><br><span class="line">        <span class="built_in">String</span> requestBody = <span class="keyword">new</span> <span class="built_in">String</span>(body);</span><br><span class="line">        <span class="comment">//生成令牌 此处调用一个自己写的方法，有兴趣的朋友可以自行google如何使用ak/sk生成token，此方法跟本教程无关，就不贴出来了</span></span><br><span class="line">        <span class="built_in">String</span> token = TokenHelper.generateToken(checkTokenUrl, ttTime, methodName, requestBody);</span><br><span class="line">        <span class="comment">//将令牌放入请求header中</span></span><br><span class="line">        request.getHeaders().add(<span class="string">&quot;X-Auth-Token&quot;</span>,token);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> execution.execute(request, body);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>创建<code>RestTemplate</code>实例的时候可以这样向其中添加拦截器</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span><br><span class="line"><span class="comment">//向restTemplate中添加自定义的拦截器</span></span><br><span class="line">restTemplate.getInterceptors().<span class="keyword">add</span>(<span class="keyword">new</span> TokenInterceptor());</span><br></pre></td></tr></table></figure>
-
-<h3 id="六-总结"><a href="#六-总结" class="headerlink" title="六.总结"></a>六.总结</h3><p>通过本章的讲解，想必读者初步的了解了如何使用<code>RestTemplate</code>方便快捷的访问restful接口。其实<code>RestTemplate</code>的功能非常强大，作者也仅仅学了点皮毛。如果大家觉得本文有什么地方没写清楚的或者有其他什么想要了解的可以在下方留言，我后续会尽量在文中进行补充完善。</p>
-
+          <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>BlockingQueue即阻塞队列，它是基于ReentrantLock，依据它的基本原理，我们可以实现Web中的长连接聊天功能，当然其最常用的还是用于实现生产者与消费者模式，大致如下图所示：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/4180398-89f0d2693361656e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/873/format/webp" alt="img"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/BlockingQueue%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -290,7 +273,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E7%8E%A9%E8%BD%AC%20SpringBoot%202%20%E4%B9%8B%E6%95%B4%E5%90%88%20JWT%20%E4%B8%8B%E7%AF%87/">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/springboot%20DELETE%20%E6%96%B9%E6%B3%95%E4%BC%A0%E5%8F%82%E7%9A%84%E6%96%B9%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -304,7 +287,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/11/24/%E7%8E%A9%E8%BD%AC%20SpringBoot%202%20%E4%B9%8B%E6%95%B4%E5%90%88%20JWT%20%E4%B8%8B%E7%AF%87/" class="post-title-link" itemprop="url">玩转 SpringBoot 2 之整合 JWT 下篇</a>
+            <a href="/2020/11/24/springboot%20DELETE%20%E6%96%B9%E6%B3%95%E4%BC%A0%E5%8F%82%E7%9A%84%E6%96%B9%E5%BC%8F/" class="post-title-link" itemprop="url">springboot DELETE 方法传参的方式</a>
         </h2>
 
         <div class="post-meta-container">
@@ -315,7 +298,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-11-24 13:37:18" itemprop="dateCreated datePublished" datetime="2020-11-24T13:37:18+08:00">2020-11-24</time>
+      <time title="Created: 2020-11-24 13:41:03" itemprop="dateCreated datePublished" datetime="2020-11-24T13:41:03+08:00">2020-11-24</time>
     </span>
 
   
@@ -328,880 +311,16 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h2 id="玩转-SpringBoot-2-之整合-JWT-下篇"><a href="#玩转-SpringBoot-2-之整合-JWT-下篇" class="headerlink" title="玩转 SpringBoot 2 之整合 JWT 下篇"></a>玩转 SpringBoot 2 之整合 JWT 下篇</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzUzMDQyMDM3MQ==&mid=2247483862&idx=1&sn=b9509d5aaec77b1c6380b4601a7a2481&scene=21#wechat_redirect">《玩转 SpringBoot 2 之整合 JWT 上篇》</a> 中介绍了关于 JWT 相关概念和JWT 基本使用的操作方式。本文为 SpringBoot 整合 JWT 的下篇，通过解决 App 用户登录 Session 问题的实战操作，带你更深入理解 JWT。通过本文你还可以了解到如下内容：</p>
-<ol>
-<li><p>SpringBoot 使用拦截器的实际应用</p>
-</li>
-<li><p>SpringBoot 统一异常处理</p>
-</li>
-<li><p>SpringBoot 快速搭建 RESTful Api</p>
-</li>
-</ol>
-<blockquote>
-<p>关于生成JWT 操作请参考 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzUzMDQyMDM3MQ==&mid=2247483862&idx=1&sn=b9509d5aaec77b1c6380b4601a7a2481&scene=21#wechat_redirect">《玩转 SpringBoot 2 之整合 JWT 上篇》</a></p>
-</blockquote>
-<h2 id="实战操作"><a href="#实战操作" class="headerlink" title="实战操作"></a>实战操作</h2><h3 id="登录操作"><a href="#登录操作" class="headerlink" title="登录操作"></a>登录操作</h3><p><strong>登录操作流程图：</strong></p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9sJhvpNdA6FRIib23SVVdjmSJSia1V5h3wLySFlQZwDJDoVqgB9Nflibqhw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<p><strong>登录操作流程介绍：</strong></p>
-<ol>
-<li>App 根据用户名和密码访问登录接口。</li>
-<li>如果用户名和密码错误则提示 App 用户密码输入错误。</li>
-<li>如果用户名和密码正确则获取用户信息（表示登录成功）并根据用户信息生成 Token 并将其存入ServletContext 中。</li>
-<li>将生成的 Token 返回给 App。</li>
-</ol>
-<p><strong>登录操作具体代码：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">@RestController</span><br><span class="line">public class LoginController &#123;</span><br><span class="line">    Logger log &#x3D; LoggerFactory.getLogger(LoginController.class);</span><br><span class="line">    @Autowired</span><br><span class="line">    private JWTService jwtService;</span><br><span class="line"></span><br><span class="line">    @RequestMapping(&quot;&#x2F;login&quot;)</span><br><span class="line">    public ReturnMessage&lt;Object&gt; login(String loginName,String password,HttpServletRequest request) &#123;</span><br><span class="line">        if(valid(loginName,password)) &#123;</span><br><span class="line">            ReturnMessageUtil.error(CodeEnum.LOGINNAMEANDPWDERROR);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Map&lt;String,String&gt; userInfo &#x3D; createUserInfoMap(loginName,password);</span><br><span class="line">        String token &#x3D; jwtService.createToken(userInfo, 1);</span><br><span class="line"></span><br><span class="line">        ServletContext context &#x3D; request.getServletContext();</span><br><span class="line">        context.setAttribute(token, token);</span><br><span class="line">        log.info(&quot;token:&quot;+token);</span><br><span class="line">        return ReturnMessageUtil.sucess(token);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">    private Map&lt;String,String&gt; createUserInfoMap(String loginName, String password) &#123;</span><br><span class="line">        Map&lt;String,String&gt; userInfo &#x3D; new HashMap&lt;String,String&gt;();</span><br><span class="line">        userInfo.put(&quot;loginName&quot;, loginName);</span><br><span class="line">        userInfo.put(&quot;password&quot;, password);</span><br><span class="line">        return userInfo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private boolean valid(String loginName, String password) &#123;</span><br><span class="line">        if(Objects.equal(&quot;ljk&quot;, loginName) &amp;&amp; Objects.equal(&quot;123456&quot;, password) ) &#123;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="拦截操作"><a href="#拦截操作" class="headerlink" title="拦截操作"></a>拦截操作</h3><p><strong>拦截操作流程图：</strong></p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9sjDrDEWMbAjLbUWKT3hKibvIRxO0Fnicjjmpk8nWhicw6hZFa3OnIMkswQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<p><strong>拦截操作流程介绍：</strong></p>
-<ol>
-<li>服务器获取 （App访问具体的Api 时携带的 Token）Token，如果 Token 为空则提示 App Token不能为空。</li>
-<li>如果 Token 不为空则从 ServletContext 中获取 Token，如果不存在则提示 App 该Token为非法 Token ！</li>
-<li>如果 Token 不为空并且 ServletContext 中存在该Token，需要判断 Token 是否过期。如果未过期则放开拦截。</li>
-<li>如果Token 已经过期则提示 App Token已经过期，需要重新登录。</li>
-</ol>
-<p><strong>拦截操作具体代码：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">public class LoginInterceptor implements HandlerInterceptor&#123;</span><br><span class="line"></span><br><span class="line">    Logger log &#x3D; LoggerFactory.getLogger(LoginInterceptor.class);</span><br><span class="line"></span><br><span class="line">    private JWTService jwtService;</span><br><span class="line"></span><br><span class="line">    public LoginInterceptor(JWTService jwtService) &#123;</span><br><span class="line">        this.jwtService &#x3D; jwtService;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception &#123;</span><br><span class="line"></span><br><span class="line">        log.info(&quot;Token Checkout processing&quot;);</span><br><span class="line">        String token &#x3D; request.getParameter(&quot;token&quot;);</span><br><span class="line"></span><br><span class="line">        if (StringUtils.isEmpty(token)) &#123;</span><br><span class="line">            throw new JKException(CodeEnum.TOKENISEMPTY);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String tokenInServletContext &#x3D; (String)request.getServletContext().getAttribute(token);</span><br><span class="line">        if(StringUtils.isEmpty(tokenInServletContext)) &#123;</span><br><span class="line">            throw new JKException(CodeEnum.ILLEGALTOKEN);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">             jwtService.verifyToken(token);</span><br><span class="line">        &#125; catch (AlgorithmMismatchException  e) &#123;</span><br><span class="line">            log.error(&quot;Token Checkout processing AlgorithmMismatchException 异常！&quot;+e.getLocalizedMessage());</span><br><span class="line">            throw new JKException(CodeEnum.ILLEGALTOKEN);</span><br><span class="line">        &#125;catch (TokenExpiredException  e) &#123;</span><br><span class="line">            log.info(&quot;token已经过期&quot;);</span><br><span class="line">            throw new JKException(CodeEnum.EXPIRETOKEN);</span><br><span class="line">        &#125;catch (SignatureVerificationException  e) &#123;</span><br><span class="line">            log.error(&quot;Token Checkout processing SignatureVerificationException 异常！&quot;+e.getLocalizedMessage());</span><br><span class="line">            throw new JKException(CodeEnum.ILLEGALTOKEN);</span><br><span class="line">         &#125;catch (Exception e) &#123;</span><br><span class="line">            log.error(&quot;Token Checkout processing 未知异常！&quot;+e.getLocalizedMessage());</span><br><span class="line">            throw e;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="退出操作"><a href="#退出操作" class="headerlink" title="退出操作"></a>退出操作</h3><p><strong>退出操作流程介绍：</strong></p>
-<p>访问退出接口并传递登录生成的 Token，然后将 ServletContext中的 Token 删除。</p>
-<p><strong>退出操作具体代码：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@GetMapping(&quot;&#x2F;logout&quot;)</span><br><span class="line">public ReturnMessage&lt;?&gt; logout(String token,String issuer,HttpServletRequest request) &#123;</span><br><span class="line">    ServletContext context &#x3D; request.getServletContext();</span><br><span class="line">    context.removeAttribute(token);</span><br><span class="line">    return ReturnMessageUtil.sucess();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="公共代码"><a href="#公共代码" class="headerlink" title="公共代码"></a>公共代码</h3><p>IndexController App 访问测试Api，具体代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@RestController</span><br><span class="line">public class IndexController &#123;</span><br><span class="line"></span><br><span class="line">    @GetMapping(&quot;index&quot;)</span><br><span class="line">    public ReturnMessage index() &#123;</span><br><span class="line">        return ReturnMessageUtil.sucess();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>统一异常次处理的 Handle</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@RestControllerAdvice</span><br><span class="line">public class ExceptionHandle &#123;</span><br><span class="line">    private final static Logger logger &#x3D; LoggerFactory.getLogger(ExceptionHandle.class);</span><br><span class="line">    @ExceptionHandler(value &#x3D; Exception.class)</span><br><span class="line">    &#x2F;&#x2F;@ResponseBody</span><br><span class="line">    public ReturnMessage&lt;Object&gt; handle(HttpServletResponse response, Exception exception) &#123;</span><br><span class="line">         response.setCharacterEncoding(&quot;utf-8&quot;);</span><br><span class="line">        if(exception instanceof JKException) &#123;</span><br><span class="line">            JKException sbexception &#x3D; (JKException)exception;</span><br><span class="line">            return ReturnMessageUtil.error(sbexception.getCode(), sbexception.getMessage());</span><br><span class="line">        &#125;else &#123;</span><br><span class="line">            logger.error(&quot;系统异常 &#123;&#125;&quot;,exception);</span><br><span class="line">            return ReturnMessageUtil.error(-1, &quot;未知异常&quot;+exception.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>JWTService 工具类 代码可以在我的GitHub上进行查看，具体地址请查看下面代码示例章节。</p>
-</blockquote>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>这里使用PostMan 进行测试，当然你也可以选用你顺手的工具进行测试哈！</p>
-<p>访问 <a target="_blank" rel="noopener" href="http://localhost:8080/sbe/login?loginName=ljk&amp;password=123456%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%8E%B7%E5%8F%96Token%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BAdate%E5%AD%97%E6%AE%B5%E7%9A%84%E5%80%BC%E5%B0%B1%E6%98%AF%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F%E5%90%8E%E7%94%9F%E6%88%90%E7%9A%84">http://localhost:8080/sbe/login?loginName=ljk&amp;password=123456进行登录获取Token，如下图所示date字段的值就是登录成功后生成的</a> Token。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9slibvyctFRo1VXNjUWOw4H1nYmuL9Dib86b2oUbQEeI9vE79kIdTQLxCg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<p>访问 <a target="_blank" rel="noopener" href="http://localhost:8080/sbe/index?token=%E5%85%B7%E4%BD%93token%E5%80%BC%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BA%E8%AE%BF%E9%97%AE%E6%88%90%E5%8A%9F%EF%BC%81!%5Bimg%5D(https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9spLzNoR2ugRaBhliaYU9n4g3VZLaYjU4YTtI9aVMNXlL86E5umPG2j4A/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)">http://localhost:8080/sbe/index?token=具体token值，如下图所示访问成功！![img](https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9spLzNoR2ugRaBhliaYU9n4g3VZLaYjU4YTtI9aVMNXlL86E5umPG2j4A/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)</a></p>
-<p>如果不携带 Token 会提示Token不能为空，如下图所示：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9sGgia1wVcm2J9kVnJpeVWco2lfQwXF54ESxCjPf8GsNTO5BsdkYczbibg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<p>如果输入不存在的 Token 则提示 非法Token！，如下图所示：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9sdF5oviaWSb8cmUIDia21fqZxgSIboUfRCYnBD0LJveucpOcBNBWuQJrA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<p><a target="_blank" rel="noopener" href="http://localhost:8080/sbe/logout?token=%E5%85%B7%E4%BD%93token%E5%80%BC">http://localhost:8080/sbe/logout?token=具体token值</a> 进行退出，如下图所示：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9sic4Z0lp5rv3ksC5RC2Mibj6ibpoyDicezd4NgmYhbicZiajfIReryNWaKbLQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<p>退出后再次使用已经退出的Token 访问，会提示非法Token 如下图所示：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/9KGK4tWqBIw5CPVSOcR8EYbKoOd59b9sicvIvuJR6ZV3pzqFAq63Qgw2BbHdmxcvhmmUiaBwf7ibWTezvFE0zh06A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>登录操作通过 JWT 生成Token 返回给App，拦截操作（也可以理解成校验操作）通过拦截器（HandlerInterceptor）来进行实现。最后退出操作是通过将Token 保存ServletContent 中，退出其实就是将 Token 从 ServletContent 中删除。</p>
-<p>本文主旨是通过简单实现，带你了解 App 认证过程处理方式，对于拦截部分你也可以通过 Filter 或 Aop 来进行实现。Token 存储也可以考虑使用Redis来实现。</p>
-<p>还有一个问题就是：JWT 续期问题本文并没有实现（JWT 过期时间延期问题）。这个部分就当成一个作业，欢迎大家在评论区说说你的解决方案？</p>
-<h2 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h2><p>本文并没有对 JWTService 工具类、统一异常处理、拦截器使用搭建进行详细介绍。</p>
-<p>如果你想直接查看本文全部源码，请在我的 GitHub仓库SpringbootExamples 中的 spring-boot-2.x-jwt 模块进行查看。</p>
-<p>GitHub：<a target="_blank" rel="noopener" href="https://github.com/zhuoqianmingyue/springbootexamples">https://github.com/zhuoqianmingyue/springbootexamples</a></p>
-<p>同时你也可以通过查看我关于拦截器、统一异常处理、搭建 RESTful Api 详细教程总结自己完成相关的实现：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzUzMDQyMDM3MQ==&mid=2247483869&idx=1&sn=d4c7ee87a7c2409bf2403ae470818e00&scene=21#wechat_redirect">玩转 SpringBoot 2 快速整合拦截器</a></li>
-<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzUzMDQyMDM3MQ==&mid=2247483729&idx=1&sn=de160b3323a36b988cba57291a36ff4a&scene=21#wechat_redirect">玩转 SpringBoot 2 快速整合 | RESTful Api 篇</a></li>
-<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzUzMDQyMDM3MQ==&mid=2247483737&idx=1&sn=dcd66aba0c4029c9a01801e3ce5c8758&scene=21#wechat_redirect">SpringBoot 2 快速整合 | 统一异常处理</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">使用Mapstruct来进行实体与模型之间的映射操作</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:37:01" itemprop="dateCreated datePublished" datetime="2020-11-24T13:37:01+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="使用Mapstruct来进行实体与模型之间的映射操作"><a href="#使用Mapstruct来进行实体与模型之间的映射操作" class="headerlink" title="使用Mapstruct来进行实体与模型之间的映射操作"></a>使用Mapstruct来进行实体与模型之间的映射操作</h1><p>在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。</p>
-<p>  mapstruct这个插件就是用来处理domin实体类与model类的属性映射，定义mapper接口，mapstruct就会自动的帮我们实现这个映射接口，避免了麻烦复杂的映射实现。</p>
-<p>  工程中引入mapstruct依赖</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- mapstruct --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-jdk8<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>这里定义实体Person</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-
-<p>这里定义模型PersonModel </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123; </span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>定义实体Person与模型PersonModel,这里两个类的属性一致。</p>
-<p>定义映射可以使用接口也可以使用静态类。</p>
-<p>&lt;1&gt;使用接口映射：</p>
-<p>    <a>简单实体映射：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里在PersonMapper 定义了两个map方法，第一个是单实体映射，第二个方法是List映射。在存盘之后，mapstruct会自动在target文件里为我们实现我们定义的映射接口。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Generated(</span></span><br><span class="line"><span class="meta">    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,</span></span><br><span class="line"><span class="meta">    date = &quot;2017-01-18T11:53:32+0800&quot;,</span></span><br><span class="line"><span class="meta">    comments = &quot;version: 1.0.0.Final, compiler: Eclipse JDT (IDE) 1.2.0.v20150514-0146, environment: Java 1.8.0_31 (Oracle Corporation)&quot;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonMapperImpl</span> <span class="keyword">implements</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PersonModel <span class="title">ma</span><span class="params">(Person entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ( entity == <span class="keyword">null</span> ) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        PersonModel personModel = <span class="keyword">new</span> PersonModel();</span><br><span class="line">        personModel.setName( entity.getName() );</span><br><span class="line">        personModel.setAge( entity.getAge() );</span><br><span class="line">        personModel.setPhone( entity.gePhone() );</span><br><span class="line">        <span class="keyword">return</span> personModel;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;PersonModel&gt; <span class="title">map</span><span class="params">(List&lt;Person&gt; entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ( entity == <span class="keyword">null</span> ) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;PersonModel&gt; list = <span class="keyword">new</span> ArrayList&lt;PersonModel&gt;();</span><br><span class="line">        <span class="keyword">for</span> ( Person person : entity ) &#123;</span><br><span class="line">            list.add( map( person) );</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> list;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在目标工程使用实体的时候只需要new一个PersonMapper的实例INSTANCE，就可以调用map()方法映射实体属性到模型中去了。<br>  但是这是在实体与模型的属性命名一致的情况下，这种情况下映射基本上不需要我们指定模型的哪个属性对应实体的哪个属性，在模型属性命名与实体属性命名不一致的情况下，还可以使用@Mapping(target = “模型属性”, source = “实体属性”)来指定的映射某个属性<br>  重新定义PersonModel跟Person<br>  这里定义实体Person</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone; </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-<p>这里定义模型PersonModel </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String personName;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
-
-<p>其中将PersonModel中的name属性改为personName，这里的映射接口写法就可以写成</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果model定义了在实体没有可以映射的属性时，就可以使用@Mapping(target = “模型属性”, ignore = true)来跳过不需要映射的模型属性了。</p>
-<p>  如下面重新定义实体Person和模型PersonModel</p>
-<p>  这里定义实体Person</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-<p>这里定义模型PersonModel </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonModel</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> String personName; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </span><br><span class="line">    <span class="keyword">private</span> String phone;  </span><br><span class="line">    <span class="keyword">private</span> String hand;</span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
-<p> 这里的映射接口就应该改为:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line"></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> 如果模型与实体均存在很多属性的情况下，映射接口的@Mapping注解很容易写得很长，比如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line">    <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">     ..</span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">( Personentity)</span></span>;</span><br><span class="line">    List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p> 这样的程序就不可避免的写得很笨了。所以我们也可以使用default默认方法来定义映射接口，如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PersonMapper</span> </span>&#123;</span><br><span class="line">    PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">    <span class="function">PersonModel <span class="title">map</span><span class="params">(Person entity, Person personName, Person age, Person phone)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> PersonModel <span class="title">map</span><span class="params">(Person entity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE.map(entity, entity.getName(), entity.getAge(), entity.getPhone());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">List&lt;PersonModel&gt; <span class="title">map</span><span class="params">(List&lt;Person&gt; entity)</span></span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>&lt;2&gt;使用静态类映射实体</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper(componentModel = &quot;spring&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">PesonMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">abstract</span>  List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p> 虽然看起来写法差不多一直，但是使用静态类来映射有他的好处，最起码接口只能定义方法，无法写方法体，但是使用了静态类，就可以写上方法体了，比如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper(componentModel = &quot;spring&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">PesonMapper</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> PersonModel <span class="title">mapEighteen</span><span class="params">( Person entity)</span> </span>&#123;</span><br><span class="line">	  <span class="keyword">if</span> (entity.getName.equals(<span class="number">18</span>)) &#123;</span><br><span class="line">		   <span class="keyword">return</span> map(entity);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;;</span><br><span class="line">   <span class="meta">@Mapping(target = &quot;personName&quot;, source = &quot;name&quot;)</span></span><br><span class="line">   <span class="meta">@Mapping(target = &quot;hand&quot;,  ignore = true)</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> PersonModel <span class="title">map</span><span class="params">( Person entity)</span></span>;</span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">abstract</span>  List&lt;PersonModel &gt; map(List&lt; Person&gt; entity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>调用mapEighteen()就可以只映射实体属性age为18的实体了。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/" class="post-title-link" itemprop="url">符合规范的url</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:35:52" itemprop="dateCreated datePublished" datetime="2020-11-24T13:35:52+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="符合规范的url"><a href="#符合规范的url" class="headerlink" title="符合规范的url"></a>符合规范的url</h1><h1 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h1><p>进公司没有多久遇到一个问题，定义的url会被大神吐槽说是很渣。之前从来没有注意这块，今天把我们团队的url规范分享给大家。</p>
-<h1 id="为什么需要URL规范化"><a href="#为什么需要URL规范化" class="headerlink" title="为什么需要URL规范化"></a>为什么需要URL规范化</h1><p>1、网站URL和结构已经成为网站搜索引擎友好的最大基础性问题，网站URL 和结构问题，早发现早优化，越是往后放，最后就成了制约网站运营和产品开发的决定性因素。<br>2、无论是网站的可用性还是网站对搜索引擎的吸引力，清晰明了的浏览路径都是相当重要的，URL是统一资源定位，即每个网页的网址、路径。<br>3、浏览路径让网站的导航结构更清晰，可以更加平衡的分布网站权重。</p>
-<h1 id="反例（不规范的URL）"><a href="#反例（不规范的URL）" class="headerlink" title="反例（不规范的URL）"></a>反例（不规范的URL）</h1><h3 id="URL中多余的字符"><a href="#URL中多余的字符" class="headerlink" title="URL中多余的字符"></a>URL中多余的字符</h3><p>1、子域名的URL中包含”www”: “<a target="_blank" rel="noopener" href="http://www.shuchao.cnblogs.com/&quot;">http://www.shuchao.cnblogs.com/&quot;</a></p>
-<p>2、含有默认端口: “<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shuchao/">http://www.cnblogs.com:80/shuchao/</a>“</p>
-<p>3、松散的URL: “<a target="_blank" rel="noopener" href="http://www.chapters.indigo.ca/books/amazon-sucks-donkey-balls/9780470170779-item.html&quot;">http://www.chapters.indigo.ca/books/amazon-sucks-donkey-balls/9780470170779-item.html&quot;</a></p>
-<p>4、多余默认文件名index.html,default.aspx等：”<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shuchao/index.html&quot;">http://www.cnblogs.com/shuchao/index.html&quot;</a></p>
-<p>5、文件路径中包含多余的”/“:”<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shuchao//&quot;%EF%BC%8C%E5%A4%9A%E4%BD%99%E7%9A%84%E7%82%B9%E4%BF%AE%E9%A5%B0%E4%B8%B2:&quot;x/y/z/http://www.cnblogs.com/a/b/http://page.html&quot;">http://www.cnblogs.com/shuchao//&quot;，多余的点修饰串:&quot;x/y/z/http://www.cnblogs.com/a/b/http://www.cnblogs.com/../page.html&quot;</a></p>
-<p>6、查询串中多余的 ? (空查询串):<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shuchao">http://www.cnblogs.com/shuchao</a>?</p>
-<p>7、多余的&amp; 无用的查询变量:<a target="_blank" rel="noopener" href="http://www.example.com/display?id=123&amp;fake=fake">http://www.example.com/display?id=123&amp;fake=fake</a></p>
-<h3 id="URL缺少字符串"><a href="#URL缺少字符串" class="headerlink" title="URL缺少字符串"></a>URL缺少字符串</h3><p>缺少”/“:”<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shuchao&quot;">http://www.cnblogs.com/shuchao&quot;</a><br>查询串缺少名称或者值:”<a target="_blank" rel="noopener" href="http://www.example.com/display?id=&quot;">http://www.example.com/display?id=&quot;</a> 或者 “<a target="_blank" rel="noopener" href="http://www.example.com/display?=123&quot;">http://www.example.com/display?=123&quot;</a></p>
-<h3 id="其他不规范的URL"><a href="#其他不规范的URL" class="headerlink" title="其他不规范的URL"></a>其他不规范的URL</h3><p>1、”<a target="_blank" rel="noopener" href="http://shuchao.cnblogs.com/&quot;">http://shuchao.cnblogs.com/&quot;</a> 与 “<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shuchao/&quot;%E5%85%B6%E5%AE%9E%E6%98%AF%E7%9B%B8%E5%90%8C%E7%9A%84%E5%86%85%E5%AE%B9%E5%8D%B3%E5%90%8C%E4%B8%80%E4%B8%AA%E8%B5%84%E6%BA%90%EF%BC%8C%E6%9C%80%E5%A5%BD%E4%B8%8D%E8%A6%81%E6%9C%89%E4%B8%A4%E4%B8%AAurL">http://www.cnblogs.com/shuchao/&quot;其实是相同的内容即同一个资源，最好不要有两个urL</a></p>
-<p>2、使用IP代替域名</p>
-<p>3、大小写敏感(“<a target="_blank" rel="noopener" href="http://www.google.cn/Intl/zh-CN/about.html&quot;">http://www.google.cn/Intl/zh-CN/about.html&quot;</a> 和”<a target="_blank" rel="noopener" href="http://www.google.cn/intl/zh-CN/about.html&quot;">http://www.google.cn/intl/zh-CN/about.html&quot;</a>)</p>
-<p>4、查询变量顺序混乱:”<a target="_blank" rel="noopener" href="http://www.example.com/test.aspx?bar=1&amp;a=test&quot;">http://www.example.com/test.aspx?bar=1&amp;a=test&quot;</a></p>
-<p>5、含临时的状态变量:<a target="_blank" rel="noopener" href="http://www.example.com/test?back=/prevpage.aspx">http://www.example.com/test?back=/prevpage.aspx</a></p>
-<h1 id="设计URL应该遵循的原则"><a href="#设计URL应该遵循的原则" class="headerlink" title="设计URL应该遵循的原则"></a>设计URL应该遵循的原则</h1><h3 id="一、简单，好记"><a href="#一、简单，好记" class="headerlink" title="一、简单，好记"></a>一、简单，好记</h3><p>简单好记的域名会给人以深刻的印象。</p>
-<h3 id="二、URL中的字母全部用小写"><a href="#二、URL中的字母全部用小写" class="headerlink" title="二、URL中的字母全部用小写"></a>二、URL中的字母全部用小写</h3><p>全部用小写，用户比较容易输入，不用因为大小写混合而出现错误，这是人们的输入习惯<br>有些服务器是区分大小写的，例如Lunix服务器，这样在站长做链接或者是用户输入时，会因为大小写的问题而出现404错误，<br>而且robots也是区分大小写的，如果大小写搞错了，可能会造成不能收录的严重问题。所以建议所有的URL都使用小写</p>
-<h3 id="三、连词符的使用"><a href="#三、连词符的使用" class="headerlink" title="三、连词符的使用"></a>三、连词符的使用</h3><p>目录或者文件名中如果有两个单词组成时，一般建议中间使用中划线(-)隔开，<br>切记不要使用下划线或者其他字符，在搜索引擎中，它是把中划线当作一个空格来处理的，而下划线则是被忽略的，<br>例如seo-caipiao会被读成seo与caipiao。这是比较友好的写法</p>
-<h3 id="四、URL中避免太多参数"><a href="#四、URL中避免太多参数" class="headerlink" title="四、URL中避免太多参数"></a>四、URL中避免太多参数</h3><p>设计的则是URL中的参数应该尽量减少，不要超过三个，一般的情况下URL中的参数2-3个就可以了。</p>
-<h3 id="五、目录层次尽量少"><a href="#五、目录层次尽量少" class="headerlink" title="五、目录层次尽量少"></a>五、目录层次尽量少</h3><p>这里所指的目录层次是指物理目录结构，而不是指逻辑结构，我们在进行URL的设计时，<br>网站的结构要尽量的去减少目录层次，层次不能太深了，一般建议不要超过三层，特别对于一些新站来说，<br>权重低，搜索引擎蜘蛛爬行得很浅，深一点的页面，蜘蛛都很可能不会去爬行的，所以要尽量的做到使目录层次减少，<br>URL缩短。根据观察，百度尤其比较喜欢目录层次比较少的页面。</p>
-<h3 id="六、文件名及目录名要具描述性"><a href="#六、文件名及目录名要具描述性" class="headerlink" title="六、文件名及目录名要具描述性"></a>六、文件名及目录名要具描述性</h3><p>文件名及目录名要具有可描述性，不但让用户一眼就能看出来这个页面是关于什么的，<br>对用户体验比较友好，而且搜索引擎也比较喜欢这样的URL。<br>例如一个关于新闻的目录，我们可以把它命名为news，用户看到这个目录名称，大概就知道这个目录是关于什么内容的了。</p>
-<h3 id="七、URL应该呈现一个降级的次序"><a href="#七、URL应该呈现一个降级的次序" class="headerlink" title="七、URL应该呈现一个降级的次序"></a>七、URL应该呈现一个降级的次序</h3><p>例如：域名/类型/分类/标题<br>例如：域名/年/月/日<br><a target="_blank" rel="noopener" href="http://domain.com/news/tech/2007/11/05/google-announces-android">http://domain.com/news/tech/2007/11/05/google-announces-android</a></p>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>1.URL能反应站点的结构<br>2.URL是可以被用户猜测和hack的（也鼓励用户如此）<br>3.永久链接，Cool URLdon’t change<br>4.动态的也要做成伪静态</p>
-<h1 id="url规范诞生"><a href="#url规范诞生" class="headerlink" title="url规范诞生"></a>url规范诞生</h1><h3 id="一、基本规范"><a href="#一、基本规范" class="headerlink" title="一、基本规范"></a>一、基本规范</h3><p>1、不能使用中文单词，最好使用有意义的英文单词，少用拼音。</p>
-<p>2、层级不能超过三级。<br>例如：<a target="_blank" rel="noopener" href="http://domain.com/xx/xx/xx/xx.html%E4%B8%8D%E8%A2%AB%E5%85%81%E8%AE%B8%E3%80%82">http://domain.com/xx/xx/xx/xx.html不被允许。</a></p>
-<p>3、URL的参数不允许超过3个</p>
-<p>4、URL全部小写</p>
-<p>5、网站内部在链接到其他网页，尤其是主页时，只使用一种URL，即不允许同一个资源有多个URL。</p>
-<p>6、不允许出现没有意义的下URL<br>例如：<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/123.html%E3%80%82%E8%B0%81%E4%B9%9F%E7%9C%8B%E4%B8%8D%E6%98%8E%E7%99%BD%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D%E3%80%82">http://www.uxuexi.cn/123.html。谁也看不明白是什么意思。</a></p>
-<p>7、如果是内容资源URL，不允许以参数的方法显示<br>例如：<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/user.html?userId=123">http://www.uxuexi.cn/user.html?userId=123</a> 需要改成<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/user/123.html">http://www.uxuexi.cn/user/123.html</a></p>
-<h3 id="二、URL类型设置"><a href="#二、URL类型设置" class="headerlink" title="二、URL类型设置"></a>二、URL类型设置</h3><p>1、目录<br>一般用在频道页或是文章栏目（这种方式能获得更多的权重），最后面必须加上“/”<br>例如：<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/search%E9%9C%80%E8%A6%81%E6%94%B9%E6%88%90http://www.uxuexi.cn/search/">http://www.uxuexi.cn/search需要改成http://www.uxuexi.cn/search/</a></p>
-<p>2、网页<br>一般用来表现网页内容，需要直接显示在页面的必须以.html结尾<br>例如:<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/123">http://www.uxuexi.cn/123</a> 需要改成<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/user/123.html">http://www.uxuexi.cn/user/123.html</a></p>
-<p>3.特定功能或交互式<br>统一以.json 或者.html结尾<br>例如：<br>添加评论 <a target="_blank" rel="noopener" href="http://www.uxuexi.cn/addcomment.json">http://www.uxuexi.cn/addcomment.json</a></p>
-<h3 id="三、静态化"><a href="#三、静态化" class="headerlink" title="三、静态化"></a>三、静态化</h3><p>1、不经常更新的内容采用静态化。例如：<a target="_blank" rel="noopener" href="http://course.uxuexi.cn/detail/111.html%E3%80%82URL%E4%B8%AD%E4%B8%8D%E5%85%81%E8%AE%B8%E4%BD%BF%E7%94%A8?%E5%B8%A6%E5%8F%82%E6%95%B0%E3%80%82">http://course.uxuexi.cn/detail/111.html。URL中不允许使用?带参数。</a><br>2、实时更新的内容采用伪静态。例如：<a target="_blank" rel="noopener" href="http://www.uxuexi.cn/user/111.html%E3%80%82URL%E4%B8%AD%E4%B8%8D%E5%85%81%E8%AE%B8%E4%BD%BF%E7%94%A8?%E5%B8%A6%E5%8F%82%E6%95%B0%E3%80%82">http://www.uxuexi.cn/user/111.html。URL中不允许使用?带参数。</a><br>特定功能或交互式用动态URL。</p>
-<h1 id="约定"><a href="#约定" class="headerlink" title="约定"></a>约定</h1><p>所有需要跳转页面的url必须进行统一的管理，统一使用cms:url自定义标签来实现，方便维护和优化。<br>例如<br>每次添加url，必须写上注释。<br>注释url功能，注释每一个参数是什么意思</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E6%8A%8AObject%E7%B1%BB%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%AE%9E%E4%BD%93%E7%B1%BB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/%E6%8A%8AObject%E7%B1%BB%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%AE%9E%E4%BD%93%E7%B1%BB/" class="post-title-link" itemprop="url">把Object类转换为实体类</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:35:39" itemprop="dateCreated datePublished" datetime="2020-11-24T13:35:39+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="把Object类转换为实体类"><a href="#把Object类转换为实体类" class="headerlink" title="把Object类转换为实体类"></a>把Object类转换为实体类</h1><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>在用SpringBoot写controller的时候，需要接受一个map的Object，之后要把Object转为特定的类，代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">postArticle</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String, Object&gt; map)</span> </span>&#123;</span><br><span class="line">        ArticleInfo articleInfo = (ArticleInfo) map.get(<span class="string">&quot;articleInfo&quot;</span>);</span><br><span class="line">        ArticleContent articleContent = (ArticleContent) map.get(<span class="string">&quot;articleContent&quot;</span>);</span><br><span class="line">        System.out.println(articleInfo + <span class="string">&quot; &quot;</span> + articleContent);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="number">123456</span></span><br></pre></td></tr></table></figure>
-
-<p>之后爆出异常：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">java.lang.ClassCastException: <span class="class"><span class="keyword">class</span> <span class="title">java</span>.<span class="title">util</span>.<span class="title">LinkedHashMap</span> <span class="title">cannot</span> <span class="title">be</span> <span class="title">cast</span> <span class="title">to</span> <span class="title">class</span> </span></span><br><span class="line"><span class="class"><span class="title">cn</span>.<span class="title">zi10ng</span>.<span class="title">blog</span>.<span class="title">domain</span>.<span class="title">ArticleInfo</span> (<span class="title">java</span>.<span class="title">util</span>.<span class="title">LinkedHashMap</span> <span class="title">is</span> <span class="title">in</span> <span class="title">module</span> <span class="title">java</span>.<span class="title">base</span> <span class="title">of</span> <span class="title">loader</span></span></span><br><span class="line"><span class="class"> &#x27;<span class="title">bootstrap</span>&#x27;</span>; cn.zi10ng.blog.domain.ArticleInfo is in unnamed <span class="keyword">module</span> of loader </span><br><span class="line"> org.springframework.boot.devtools.restart.classloader.RestartClassLoader @19b54dc3)</span><br><span class="line"><span class="number">1234</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h3><p>map中取出的是Object，不能直接把Object转为特定的实体类</p>
-<h3 id="解决办法有两个："><a href="#解决办法有两个：" class="headerlink" title="解决办法有两个："></a>解决办法有两个：</h3><ul>
-<li><strong><em>需要通过json来作为中间介质</em></strong>：</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">postArticle</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String, Object&gt; map)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">        ObjectMapper objectMapper = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">        String jsonInfo = objectMapper.writeValueAsString(map.get(<span class="string">&quot;articleInfo&quot;</span>));</span><br><span class="line">        String jsonContent = objectMapper.writeValueAsString(map.get(<span class="string">&quot;articleContent&quot;</span>));</span><br><span class="line">        ArticleInfo articleInfo = objectMapper.readValue(jsonInfo,ArticleInfo.class);</span><br><span class="line">        ArticleContent articleContent = objectMapper.readValue(jsonContent,ArticleContent.class);</span><br><span class="line"></span><br><span class="line">        System.out.println(articleContent + <span class="string">&quot; &quot;</span> +articleInfo);</span><br><span class="line">        <span class="keyword">return</span> articleService.insertArticle(articleInfo,articleContent);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="number">1234567891011</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong><em>通过com.fastxml.jackson的ObjectMapper对象进行转换：</em></strong></li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ObjectMapper objectMapper = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">objectMapper.convertValue(Object fromValue, Class&lt;T&gt; toValueType);</span><br></pre></td></tr></table></figure>
-
-
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">SQLAlchemy缓存问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:35:21" itemprop="dateCreated datePublished" datetime="2020-11-24T13:35:21+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>最近在排查一个问题，为了方便说明，我们假设现在有如下一个API：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/sqlalchemy/test&quot;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sqlalchemy_test_api</span>():</span></span><br><span class="line">    data = &#123;&#125;</span><br><span class="line">    <span class="comment"># 获取商品价格</span></span><br><span class="line">    product = Product.query.get(<span class="number">1</span>)</span><br><span class="line">    data[<span class="string">&#x27;old_price&#x27;</span>] = product.present_price</span><br><span class="line">    <span class="comment"># 休眠10秒，等待外部修改价格</span></span><br><span class="line">    time.sleep(<span class="number">10</span>)</span><br><span class="line">    product = Product.query.get(<span class="number">1</span>)</span><br><span class="line">    data[<span class="string">&#x27;new_price&#x27;</span>] = product.present_price</span><br><span class="line">    <span class="keyword">return</span> jsonify(status=<span class="string">&#x27;ok&#x27;</span>, data=data)</span><br></pre></td></tr></table></figure>
-
-<p>这里我们的后台使用了<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://flask.pocoo.org/">Flask</a>作为服务端框架，<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://www.sqlalchemy.org/">SQLAlchemy</a>作为数据库ORM框架。Product是一张商品表的ORM模型，假设原来id=1的商品价格为10，在程序休眠的10秒内价格被修改为20，那么你觉得返回的结果是多少？</p>
-<p>old_price显然是10，那么new_price呢？讲道理的话由于外部修改价格为20了，同时程序在sleep后立刻又query了一次，你可能觉得new_price应该是20。但结果并不是，真实测试的结果是10，给人感觉就像是SQLAlchemy“缓存”了上一次的结果。</p>
-<p>另外在测试的过程还发现一个现象，虽然在第一次API调用时两个price都是10，但是在第二次调用API时，读到的price是20。也就是说，在一个新的API开始时，之前“缓存”的结果被清除了。</p>
-<h2 id="SQLAlchemy的session状态管理"><a href="#SQLAlchemy的session状态管理" class="headerlink" title="SQLAlchemy的session状态管理"></a>SQLAlchemy的session状态管理</h2><p>之前我们提出了一个猜测：第二次查询是否“缓存”了第一次查询。为了验证这个猜想，我们可以把<code>SQLALCHEMY_ECHO</code>这个配置项打开，这是个全局配置项，官方文档定义如下：</p>
-<table>
-<thead>
-<tr>
-<th>配置项</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>SQLALCHEMY_ECHO</code></td>
-<td align="left">If set to True SQLAlchemy will log all the statements issued to stderr which can be useful for debugging.</td>
-</tr>
-</tbody></table>
-<p>在这个配置项打开的情况下，我们可以看到查询语句输出到终端下。我们再次调用API，可以发现第一次查询会输出类似<code>SELECT * FROM product WHERE id = 1</code>的语句，而第二次查询则没有这样的输出。如此看来，SQLAlchemy确实缓存了上次的结果，在第二次查询的时候直接使用了上次的结果。</p>
-<p>实际上，当执行第一句<code>product = Product.query.get(1)</code>时，product这个对象处于持久状态(persistent)了，我们可以通过一些工具看到ORM对象目前处于的状态。详细的状态列表可在<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#quickie-intro-to-object-states">官方文档</a>中找到。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> inspect</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>insp = inspect(product)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>insp.persistent</span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>product.__dict__</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&#x27;id&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;present_price&#x27;</span>: <span class="number">10</span>,</span><br><span class="line">  <span class="string">&#x27;_sa_instance_state&#x27;</span>: &lt;sqlalchemy.orm.state.InstanceState <span class="built_in">object</span> at <span class="number">0x1106a3350</span>&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>为了清除该对象的缓存，程度从低到高有下面几种做法。<code>expire</code>会清除对象里缓存的数据，这样下次查询时会直接从数据库进行查询。<code>refresh</code>不仅清除对象里缓存的数据，还会立刻触发一次数据库查询更新数据。<code>expire_all</code>的效果和<code>expire</code>一样，只不过会清除session里所有对象的缓存。<code>flush</code>会把所有本地修改写入到数据库，但没有提交。<code>commit</code>不仅把所有本地修改写入到数据库，同时也提交了该事务。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">db.session.expire(product)</span><br><span class="line">db.session.refresh(product)</span><br><span class="line">db.session.expire_all()</span><br><span class="line">db.session.flush()</span><br><span class="line">db.session.commit()</span><br></pre></td></tr></table></figure>
-
-<p>我们对这几种方法依次做实验，结果发现这5个操作都会让下次查询直接从数据库进行查询，但只有<code>commit</code>会读到最新的price。那这个又是什么原因呢，我们已经强制每次查询走数据库，为何还是读到“缓存”的数据。这个就要用数据库的事务隔离机制来解释了。</p>
-<h2 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h2><p>在数据库系统中，事务<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://en.wikipedia.org/wiki/Isolation_(database_systems)">隔离级别</a>(isolation level)决定了数据在系统中的可见性。隔离级别从低到高分为四种：未提交读(Read uncommitted)，已提交读(Read committed)，可重复读(Repeatable read)，可串行化(Serializable)。他们的区别如下表所示。</p>
-<table>
-<thead>
-<tr>
-<th>隔离级别</th>
-<th align="right">脏读</th>
-<th align="right">不可重复读</th>
-<th align="right">幻读</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>未提交读(RU)</td>
-<td align="right">可能</td>
-<td align="right">可能</td>
-<td align="right">可能</td>
-</tr>
-<tr>
-<td>已提交读(RC)</td>
-<td align="right">不可能</td>
-<td align="right">可能</td>
-<td align="right">可能</td>
-</tr>
-<tr>
-<td>可重复读(RR)</td>
-<td align="right">不可能</td>
-<td align="right">不可能</td>
-<td align="right">可能</td>
-</tr>
-<tr>
-<td>可串行化</td>
-<td align="right">不可能</td>
-<td align="right">不可能</td>
-<td align="right">不可能</td>
-</tr>
-</tbody></table>
-<p>脏读(dirty read)是指一个事务可以读到其他事务还未提交的数据。不可重复读(non-repeatable read)是指在一个事务中同一行被读取了多次，可以读到不同的值。幻读(phantom read)是指在一个事务中执行同一个语句多次，读到的数据行发生了改变，即可能行数增加了或减少了。</p>
-<p>前面提到的问题其实就涉及到不可重复读这个特性，即在一个事务中我们query了product.id=1的数据多次，但读到了重复的数据。对于MySQL来说，默认的事务隔离级别是RR，通过上表我们可知RR是可重复读的，因此可以解释这个现象。</p>
-<table>
-<thead>
-<tr>
-<th>事务A</th>
-<th>事务B</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>BEGIN;</code></td>
-<td><code>BEGIN;</code></td>
-</tr>
-<tr>
-<td><code>SELECT present_price FROM product WHERE id = 1; /* id=1的商品价格为10 */</code></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>UPDATE product SET present_price = 20 WHERE id = 1; /* 修改id=1的商品价格为20 */</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>COMMIT;</code></td>
-</tr>
-<tr>
-<td><code>SELECT present_price FROM product WHERE id = 1; /* 再次查询id=1的商品价格 */</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>COMMIT;</code></td>
-<td></td>
-</tr>
-</tbody></table>
-<p>对于前面的问题，我们可以把两个事务的执行时序图画出来如上所示。因此为了使第二次查询得到正确的值，我们可以把隔离级别设为RC，或者在第二次查询前进行<code>COMMIT</code>新起一个事务。</p>
-<h2 id="Flask-SQLAlchemy的自动提交"><a href="#Flask-SQLAlchemy的自动提交" class="headerlink" title="Flask-SQLAlchemy的自动提交"></a>Flask-SQLAlchemy的自动提交</h2><p>前面还遗留一个问题没有搞清楚：在一个新的API开始时，之前“缓存”的结果似乎被清除了。由于打开了<code>SQLALCHEMY_ECHO</code>配置项，我们可以观察到每次API结束的时候都会自动触发一次<code>COMMIT</code>，而正是这个自动提交清空了所有的“缓存”。通过查找源代码，我们发现是下面这段代码在起作用：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@teardown</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">shutdown_session</span>(<span class="params">response_or_exc</span>):</span></span><br><span class="line">    <span class="keyword">if</span> app.config[<span class="string">&#x27;SQLALCHEMY_COMMIT_ON_TEARDOWN&#x27;</span>]:</span><br><span class="line">        <span class="keyword">if</span> response_or_exc <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            self.session.commit()</span><br><span class="line">    self.session.remove()</span><br><span class="line">    <span class="keyword">return</span> response_or_exc</span><br></pre></td></tr></table></figure>
-
-<p>如果配置项<code>SQLALCHEMY_COMMIT_ON_TEARDOWN</code>为<code>True</code>，那么首先触发<code>COMMIT</code>，最后统一执行<code>session.remove()</code>操作，即释放连接并回滚事务操作。</p>
-<p>有意思的是，这个配置项在Flask2.0版本的Changelog中被移除了。</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/2245716-7b55f7db34ac4c33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/710/format/webp" alt="img"></p>
-<p>Flask2.0 Changelog</p>
-<p>关于删除的原因，作者在<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://stackoverflow.com/questions/23301968/invalid-transaction-persisting-across-requests">stackoverflow</a>的一个帖子里进行了说明。这个帖子同时也解释了为什么在我们的生产环境中经常报这个错误：<br> <code>InvalidRequestError: This session is in &#39;prepared&#39; state; no further SQL can be emitted within this transaction.</code>，而且只有重启才能解决问题。有兴趣的同学可以深入阅读一下。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在MySQL的同一个事务中，多次查询同一行的数据得到的结果是相同的，这里既有SQLAlchemy本身“缓存”结果的原因，也受到数据库隔离级别的影响。如果要强制读取最新的结果，最简单的办法就是在查询前手动<code>COMMIT</code>一次。根据这个原则，我们可以再仔细阅读下自己项目中的代码，看看会不会有一些隐藏的问题。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/Spring%20SmartLifecycle%20%E5%9C%A8%E5%AE%B9%E5%99%A8%E6%89%80%E6%9C%89bean%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%8C%E6%AF%95%E6%89%A7%E8%A1%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/Spring%20SmartLifecycle%20%E5%9C%A8%E5%AE%B9%E5%99%A8%E6%89%80%E6%9C%89bean%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%8C%E6%AF%95%E6%89%A7%E8%A1%8C/" class="post-title-link" itemprop="url">Spring SmartLifecycle 在容器所有bean加载和初始化完毕执行</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:35:02" itemprop="dateCreated datePublished" datetime="2020-11-24T13:35:02+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Spring-SmartLifecycle-在容器所有bean加载和初始化完毕执行"><a href="#Spring-SmartLifecycle-在容器所有bean加载和初始化完毕执行" class="headerlink" title="Spring SmartLifecycle 在容器所有bean加载和初始化完毕执行"></a>Spring SmartLifecycle 在容器所有bean加载和初始化完毕执行</h1><p><img src="https://csdnimg.cn/release/phoenix/template/new_img/original.png" alt="img"></p>
-<p><a target="_blank" rel="noopener" href="https://me.csdn.net/catoop">catoop</a> 2017-05-06 17:52:17 <img src="https://csdnimg.cn/release/phoenix/template/new_img/articleReadEyes.png" alt="img"> 16684 <img src="https://csdnimg.cn/release/phoenix/template/new_img/tobarCollect.png" alt="img"> 收藏 5</p>
-<p>分类专栏： <a target="_blank" rel="noopener" href="https://blog.csdn.net/catoop/category_5789635.html">Spring</a> 文章标签： <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search/s.do?q=spring&t=blog&o=vip&s=&l=&f=&viparticle=">spring</a></p>
-<p>版权</p>
-<p>在使用Spring开发时，我们都知道，所有bean都交给Spring容器来统一管理，其中包括没一个bean的加载和初始化。<br>有时候我们需要在Spring加载和初始化所有bean后，接着执行一些任务或者启动需要的异步服务，这样我们可以使用 SmartLifecycle 来做到。</p>
-<p>SmartLifecycle 是一个接口。当Spring容器加载所有bean并完成初始化之后，会接着回调实现该接口的类中对应的方法（start()方法）。<br>如下是一个实例：<br>我在对应的方法上注上了明确的说明，注意看一下。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">package com.shanhy.sboot;</span><br><span class="line"></span><br><span class="line">import org.springframework.context.SmartLifecycle;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> * SmartLifecycle测试</span><br><span class="line"> *</span><br><span class="line"> * @author 单红宇(CSDN CATOOP)</span><br><span class="line"> * @create 2017年5月6日</span><br><span class="line"> *&#x2F;</span><br><span class="line">@Component</span><br><span class="line">public class TestSmartLifecycle implements SmartLifecycle &#123;</span><br><span class="line"></span><br><span class="line">    private boolean isRunning &#x3D; false;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 1. 我们主要在该方法中启动任务或者其他异步服务，比如开启MQ接收消息&lt;br&#x2F;&gt;</span><br><span class="line">     * 2. 当上下文被刷新（所有对象已被实例化和初始化之后）时，将调用该方法，默认生命周期处理器将检查每个SmartLifecycle对象的isAutoStartup()方法返回的布尔值。</span><br><span class="line">     * 如果为“true”，则该方法会被调用，而不是等待显式调用自己的start()方法。</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public void start() &#123;</span><br><span class="line">        System.out.println(&quot;start&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 执行完其他业务后，可以修改 isRunning &#x3D; true</span><br><span class="line">        isRunning &#x3D; true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 如果工程中有多个实现接口SmartLifecycle的类，则这些类的start的执行顺序按getPhase方法返回值从小到大执行。&lt;br&#x2F;&gt;</span><br><span class="line">     * 例如：1比2先执行，-1比0先执行。 stop方法的执行顺序则相反，getPhase返回值较大类的stop方法先被调用，小的后被调用。</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public int getPhase() &#123;</span><br><span class="line">        &#x2F;&#x2F; 默认为0</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 根据该方法的返回值决定是否执行start方法。&lt;br&#x2F;&gt; </span><br><span class="line">     * 返回true时start方法会被自动执行，返回false则不会。</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean isAutoStartup() &#123;</span><br><span class="line">        &#x2F;&#x2F; 默认为false</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 1. 只有该方法返回false时，start方法才会被执行。&lt;br&#x2F;&gt;</span><br><span class="line">     * 2. 只有该方法返回true时，stop(Runnable callback)或stop()方法才会被执行。</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean isRunning() &#123;</span><br><span class="line">        &#x2F;&#x2F; 默认返回false</span><br><span class="line">        return isRunning;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * SmartLifecycle子类的才有的方法，当isRunning方法返回true时，该方法才会被调用。</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public void stop(Runnable callback) &#123;</span><br><span class="line">        System.out.println(&quot;stop(Runnable)&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 如果你让isRunning返回true，需要执行stop这个方法，那么就不要忘记调用callback.run()。</span><br><span class="line">        &#x2F;&#x2F; 否则在你程序退出时，Spring的DefaultLifecycleProcessor会认为你这个TestSmartLifecycle没有stop完成，程序会一直卡着结束不了，等待一定时间（默认超时时间30秒）后才会自动结束。</span><br><span class="line">        &#x2F;&#x2F; PS：如果你想修改这个默认超时时间，可以按下面思路做，当然下面代码是springmvc配置文件形式的参考，在SpringBoot中自然不是配置xml来完成，这里只是提供一种思路。</span><br><span class="line">        &#x2F;&#x2F; &lt;bean id&#x3D;&quot;lifecycleProcessor&quot; class&#x3D;&quot;org.springframework.context.support.DefaultLifecycleProcessor&quot;&gt;</span><br><span class="line">        &#x2F;&#x2F;      &lt;!-- timeout value in milliseconds --&gt;</span><br><span class="line">        &#x2F;&#x2F;      &lt;property name&#x3D;&quot;timeoutPerShutdownPhase&quot; value&#x3D;&quot;10000&quot;&#x2F;&gt;</span><br><span class="line">        &#x2F;&#x2F; &lt;&#x2F;bean&gt;</span><br><span class="line">        callback.run();</span><br><span class="line"></span><br><span class="line">        isRunning &#x3D; false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 接口Lifecycle的子类的方法，只有非SmartLifecycle的子类才会执行该方法。&lt;br&#x2F;&gt;</span><br><span class="line">     * 1. 该方法只对直接实现接口Lifecycle的类才起作用，对实现SmartLifecycle接口的类无效。&lt;br&#x2F;&gt;</span><br><span class="line">     * 2. 方法stop()和方法stop(Runnable callback)的区别只在于，后者是SmartLifecycle子类的专属。</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public void stop() &#123;</span><br><span class="line">        System.out.println(&quot;stop&quot;);</span><br><span class="line"></span><br><span class="line">        isRunning &#x3D; false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980818283848586878889909192</span><br></pre></td></tr></table></figure>
-
-
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/springboot%E4%B8%AD%E7%9A%84@DeleteMapping%E6%B3%A8%E8%A7%A3%E6%97%A0%E6%B3%95%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0%E5%80%BC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/springboot%E4%B8%AD%E7%9A%84@DeleteMapping%E6%B3%A8%E8%A7%A3%E6%97%A0%E6%B3%95%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0%E5%80%BC/" class="post-title-link" itemprop="url">springboot中的@DeleteMapping注解无法获取参数值</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:34:47" itemprop="dateCreated datePublished" datetime="2020-11-24T13:34:47+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="springboot中的-DeleteMapping注解无法获取参数值"><a href="#springboot中的-DeleteMapping注解无法获取参数值" class="headerlink" title="springboot中的@DeleteMapping注解无法获取参数值"></a><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490">springboot中的@DeleteMapping注解无法获取参数值</a></h1><p><a target="_blank" rel="noopener" href="https://segmentfault.com/t/springboot">springboot</a></p>
-<blockquote>
-<p>最近在试试使用springboot编写一个demo进行测试，测试过程中发现@DeleteMapping注解有一些问题，现在汇总如下，有大神指点一下</p>
-</blockquote>
-<p>示例1：<br>问题：无法获取参数id的值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@DeleteMapping(value &#x3D; &quot;userinfo&quot;)</span><br><span class="line">public void deleteUserinfo(Integer id) &#123;</span><br><span class="line">    System.out.println(&quot;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; id : &quot; + id);</span><br><span class="line">    this.dao.delete(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在spring-mvc中，经常使用上面的方法获取参数，无论是get还是post方法都可以获取的到，但是在springboot中这种写法得到的id却是null，然后方法就抛出异常，因为delete方法的参数值不能为null；</p>
-<p>为什么这种方式获取不到参数值呢？</p>
-<p>示例2：<br>问题：无法执行方法，无法获取参数值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@DeleteMapping(value &#x3D; &quot;userinfo3&quot;)</span><br><span class="line">public void deleteUserinfo3(@RequestParam(&quot;id&quot;) int id) &#123;</span><br><span class="line">    System.out.println(&quot;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; id : &quot; + id);</span><br><span class="line">    this.dao.delete(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在postman中进行的测试，无论是 form-data还是x-www-form-unlencoded类型，都无法进入方法体，连第一句打印都不执行，直接报<strong>400</strong>的错误，错误信息如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;timestamp&quot;: 1505653583069,</span><br><span class="line">  &quot;status&quot;: 400,</span><br><span class="line">  &quot;error&quot;: &quot;Bad Request&quot;,</span><br><span class="line">  &quot;exception&quot;: &quot;org.springframework.web.bind.MissingServletRequestParameterException&quot;,</span><br><span class="line">  &quot;message&quot;: &quot;Required int parameter &#39;id&#39; is not present&quot;,</span><br><span class="line">  &quot;path&quot;: &quot;&#x2F;userinfo&#x2F;userinfo3&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>很不理解，put方法可以通过修改x-www-form-unlencoded方式，然后通过@RequestParam方法获取参数值，但是delee却不行，不知为何</p>
-<p>示例3：<br>问题：获取不到参数值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@DeleteMapping(value &#x3D; &quot;userinfo4&quot;)</span><br><span class="line">public void deleteUserinfo4(Userinfo userinfo) &#123;</span><br><span class="line">    System.out.println(userinfo);</span><br><span class="line">    this.dao.delete(userinfo);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在post方法中可以使用entity来接受参数，但是delete方法却不行；<br>上面方法虽然可以执行到方法里面，第一行打印也有内容，但是userinfo对象是空的，没有获取到任何参数，不知为何！<br>后台日志如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;age&quot;:0,&quot;id&quot;:0&#125;</span><br><span class="line">Hibernate: insert into userinfo (age, cup_size, name) values (?, ?, ?)</span><br><span class="line">Hibernate: delete from userinfo where id&#x3D;?</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>极其匪夷所思，我只是执行了一个delete操作，为什么日志会打印insert into 语句呢？</p>
-</blockquote>
-<p>示例4：<br>问题 : 无法获取参数值，方法直接进不到方法体中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@DeleteMapping(value &#x3D; &quot;userinfoMap&quot;)</span><br><span class="line">public void deleteUserinfoMap(@RequestBody Map&lt;String, String&gt; map) &#123;</span><br><span class="line">    System.out.println(map);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>示例5：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@DeleteMapping(value &#x3D; &quot;userinfo&#x2F;&#123;id&#125;&quot;)</span><br><span class="line">public void deleteUserinfo2(@PathVariable(&quot;id&quot;) int id) &#123;</span><br><span class="line">    System.out.println(&quot;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; id : &quot; + id);</span><br><span class="line">    this.dao.delete(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上面的5个例子，只有这种情况下，通过restful的方法才能获取deletemapping的参数值，实在是费解。</p>
-<p>另外的一个问题 :<br>在示例5中，delete操作竟然不能执行2次，当第二次执行的时候，由于数据已经被删除，导致程序直接抛出异常，错误信息如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;timestamp&quot;: 1505654465700,</span><br><span class="line">  &quot;status&quot;: 500,</span><br><span class="line">  &quot;error&quot;: &quot;Internal Server Error&quot;,</span><br><span class="line">  &quot;exception&quot;: &quot;org.springframework.dao.EmptyResultDataAccessException&quot;,</span><br><span class="line">  &quot;message&quot;: &quot;No class com.zzg.springboot.firstbootweb.entity.Userinfo entity with id 2 exists!&quot;,</span><br><span class="line">  &quot;path&quot;: &quot;&#x2F;userinfo&#x2F;userinfo&#x2F;2&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>阅读 19.1k</p>
-<p> 赞 1踩</p>
-<p> 收藏 2关注 7</p>
-<p><a href="javascript:;">评论</a> 更新于 2017-09-17</p>
-<p><img src="https://sponsor.segmentfault.com/lg.php?bannerid=51&campaignid=1&zoneid=3&loc=https://segmentfault.com/q/1010000011211490&referer=https://www.baidu.com/link?url=j2Hmj-IKB94pj4xQf4qek9WfD8LmebDZ-iM03Q6un4nvVk3226a9Y7LtPHGY1MWo5auuRVoShc6OZXqkWDdYOK&wd=&eqid=ac37a5dd00022b64000000025f3a45e5&cb=240a219840" alt="img"></p>
-<p>5 个回答</p>
-<p><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490#comment-area">得票</a><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490?sort=created#comment-area">时间</a></p>
-<p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/krun"><img src="https://avatar-static.segmentfault.com/380/923/3809239748-59bfa75261934_big64" alt="avatar"><strong>krun</strong></a></p>
-<ul>
-<li> <strong>6.6k</strong></li>
-</ul>
-<p>情况5中的 <code>@PathVariable</code> 注解是从请求路径中获取值，与 <code>RequestBody</code> 无关，所以能取到。</p>
-<p><code>@DeleteMapping</code> 注解的参数其实有办法取到，方法的参数加个 <code>@RequestBody</code> 注解，这样就是直接获取整个原始请求体，就要你自己解析了。<br>postman的话，body类型设置为raw即可：</p>
-<p><img src="https://segmentfault.com/img/bVVcYr?w=492&h=627" alt="clipboard.png"></p>
-<p><img src="https://segmentfault.com/img/bVVcZk?w=349&h=170" alt="clipboard.png"></p>
-<p>搜索了一下网上的资料<br><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490#http://blog.csdn.net/qq_37545366/article/details/76132040">这是一种做法</a>，但是我不清楚这适不适合你。</p>
-<p>记得很久以前看到过关于这个问题的说明，好像是说 Spring 的 <code>@RequestMapping</code> 对 <code>GET/POST</code> 以外的请求方式没有做完整的解析，当时那篇文章说要自己手动实现，现在找不到那篇文章了，也可能是我记忆有误。</p>
-<p>然后关于你 情况5 的 “二次删除数据报错”<br>你的确是已经删除了id为2的数据啊，怎么可能再删除得了呢？<br>你可以把delete操作catch起来，检查是否为这个已知异常，是的话传回错误信息 “id 不存在”</p>
-<p> 赞 2</p>
-<p> 已采纳</p>
-<p><a href="javascript:;">评论</a> <a href="javascript:;">赞赏</a> <a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490/a-1020000011212299">更新于 2017-09-17</a></p>
-<ul>
-<li><p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/dayanda"><strong>上邪</strong></a>： </p>
-<p>谢谢你，把这么长一个问题全看完了！！<br>@RequestBody 应该能获取的到，我上面有一个示例说这种获取不到，是因为我突然想起来，当时没有使用raw的方式传递json数据！</p>
-<p><a href="javascript:;"> </a> <a href="javascript:;">回复</a> 2017-09-18</p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/krun"><strong>krun</strong></a>： </p>
-<p>哈哈 只是要自己解析了 不过应该也不算太复杂</p>
-<p><a href="javascript:;"> </a> <a href="javascript:;">回复</a> 2017-09-18</p>
-</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/akemengde"><img src="https://cdn.segmentfault.com/v-5f0a9217/global/img/user-64.png" alt="avatar"><strong>阿克蒙德</strong></a></p>
-<ul>
-<li> <strong>2</strong></li>
-<li><strong>新人请关照</strong></li>
-</ul>
-<p>不知道楼主有没有解决<br>用 x-www-form-uilencodeded 是可以的</p>
-<p> 赞</p>
-<p><a href="javascript:;">评论</a> <a href="javascript:;">赞赏</a> <a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490/a-1020000015032134">更新于 2018-05-25</a></p>
-<p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/shitoujianzibeier"><img src="https://cdn.segmentfault.com/v-5f0a9217/global/img/user-64.png" alt="avatar"><strong>石头剪子贝儿</strong></a></p>
-<ul>
-<li> <strong>3</strong></li>
-<li><strong>新人请关照</strong></li>
-</ul>
-<p>使用@requestBody注解后,并没有解决该问题</p>
-<p> 赞</p>
-<p><a href="javascript:;">评论</a> <a href="javascript:;">赞赏</a> <a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490/a-1020000017980010">更新于 2019-01-22</a></p>
-<p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/main_5c8ef1d2b6ba4"><img src="https://avatar-static.segmentfault.com/172/216/1722162001-5c8ef2faac5ee_big64" alt="avatar"><strong>main</strong></a></p>
-<ul>
-<li> <strong>1</strong></li>
-<li><strong>新人请关照</strong></li>
-</ul>
-<p>楼主解决了吗，我传的是一个UserList的一个id串，PostMan我用x-www-form-uilencodeded传的，后端用的@deleteMapping然后接收不到参数</p>
-<p> 赞</p>
-<p><a href="javascript:;">评论</a> <a href="javascript:;">赞赏</a> <a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490/a-1020000018550400">发布于 2019-03-18</a></p>
-<ul>
-<li><p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/dayanda"><strong>上邪</strong></a>： </p>
-<p>最后没有再跟进这个问题，因为当时也是做测试写的demo</p>
-<p><a href="javascript:;"> </a> <a href="javascript:;">回复</a> 2019-03-18</p>
-</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="https://segmentfault.com/u/chilion"><img src="https://cdn.segmentfault.com/v-5f0a9217/global/img/user-64.png" alt="avatar"><strong>chilion</strong></a></p>
-<ul>
-<li> <strong>1</strong></li>
-<li><strong>新人请关照</strong></li>
-</ul>
-<p>很好，这个坑今天被我踩到了，接收到的参数变成null 是因为<br>这个value属性，把它干掉就可以接收到数据了。具体什么原因我还没来得及看，我也是对比了好久才试出来的 <img src="https://segmentfault.com/img/bVbs5dT?w=405&h=36" alt="clipboard.png"></p>
-<p><img src="https://segmentfault.com/img/bVbs5ef?w=320&h=19" alt="clipboard.png"></p>
-<p><img src="https://segmentfault.com/img/bVbs5em?w=189&h=24" alt="clipboard.png"></p>
-<ul>
-<li></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/springboot%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolTaskExecutor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/springboot%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolTaskExecutor/" class="post-title-link" itemprop="url">springboot： 线程池ThreadPoolTaskExecutor</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:34:27" itemprop="dateCreated datePublished" datetime="2020-11-24T13:34:27+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="82"><a href="#82" class="headerlink" title="82"></a>82</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> Executor <span class="title">getAsyncExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">     executor.setCorePoolSize(<span class="number">2</span>);<span class="comment">//核心线程大小</span></span><br><span class="line">     executor.setMaxPoolSize(<span class="number">2</span>);<span class="comment">//最大线程大小</span></span><br><span class="line">     executor.setQueueCapacity(<span class="number">500</span>);<span class="comment">//d队列最大容量</span></span><br><span class="line">executor.setThreadNamePrefix(<span class="string">&quot;Gith&quot;</span>);</span><br><span class="line">      executor.setKeepAliveSeconds(<span class="number">3000</span>);<span class="comment">//最大存活 时间</span></span><br><span class="line">     executor.initialize();</span><br><span class="line">     executor.submit(<span class="keyword">new</span> ThreadDemo());</span><br><span class="line">     <span class="keyword">return</span> executor;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>CorePoolSize 核心线程大小<br>keepAliveSeconds 线程池所能允许的空闲时间<br>maxPoolSize 线程池维护线程的最大数量<br>queueCapacity 线程池所能使用的缓冲队列</p>
-<p>当一个任务通过execute(方法，欲加到线程池中时；)<br>1 如果此时线程池中的数量小于corePoolSize，即使线程池中的线程都处于空闲状态，也要创建新的线程来处理被添加的任务。</p>
-<p>2，如果线程池中的数量等于corePoolsize，缓冲队列workQueue未满，那么任务被放入缓冲队列<br>3，如果此时线程池中的数量大于coreSize,缓冲队列workQueue满，并且线程池的数量小于maximumPoolSize,建立新的线程来处理被添加的任务。</p>
-<p>4 如果此时线程池中的数量大于corePoolSize,缓冲队列workQueue满，并且线程池中的数量等于maximumPoolSize，那么通过handler所指定的策略来处理任务。也就是：处理任务的优先级为: 核心线程corePoolSize, 任务队列workQueue,最大线程maximumPoolSize，如果三者都满了，使用handler处理被拒绝的任务。</p>
-<p>5，当线程池中的线程数量大于corePoolSize 时，如果某线程空闲时间超过keepAliveTime，线程将被终止。这样，线程池可以动态的调整池中的线程数。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ch2.taskexecutor;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment">//执行器</span></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executor;</span><br><span class="line"><span class="comment">//异步捕获助手</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.springframework.context.<span class="keyword">annotation</span>.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.<span class="keyword">annotation</span>.ComponentScan;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//配置</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.<span class="keyword">annotation</span>.AsyncConfigurer;</span><br><span class="line"><span class="comment">//异步支持注解</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.<span class="keyword">annotation</span>.EnableAsync;</span><br><span class="line"><span class="comment">//线程池</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment">//声明这是一个配置类</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="comment">//引入ch2.taskexecutor下面的@service,@component,@repository,@controller注册为bean</span></span><br><span class="line"><span class="meta">@ComponentScan(<span class="meta-string">&quot;ch2.taskexecutor&quot;</span>)</span></span><br><span class="line"><span class="comment">//开启注解：开启异步支持</span></span><br><span class="line"><span class="meta">@EnableAsync</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">//配置类实现AsyncConfigurer接口并重写AsyncConfigurer方法，并返回一个ThreadPoolTaskExecutor</span></span><br><span class="line"><span class="comment">//这样我们就得到了一个基于线程池的TaskExecutor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskExecutorConfig</span> <span class="title">implements</span> <span class="title">AsyncConfigurer</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">     </span><br><span class="line">    <span class="comment">//配置类实现AsyncConfigurer接口并重写AsyncConfigurer方法，并返回一个ThreadPoolTaskExecutor</span></span><br><span class="line">    <span class="comment">//这样我们就得到了一个基于线程池的TaskExecutor</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Executor getAsyncExecutor() &#123;</span><br><span class="line">        <span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();</span><br><span class="line">        <span class="comment">//如果池中的实际线程数小于corePoolSize,无论是否其中有空闲的线程，都会给新的任务产生新的线程</span></span><br><span class="line">        taskExecutor.setCorePoolSize(<span class="number">5</span>);</span><br><span class="line">        <span class="comment">//连接池中保留的最大连接数。Default: 15 maxPoolSize  </span></span><br><span class="line">        taskExecutor.setMaxPoolSize(<span class="number">10</span>);</span><br><span class="line">        <span class="comment">//queueCapacity 线程池所使用的缓冲队列</span></span><br><span class="line">        taskExecutor.setQueueCapacity(<span class="number">25</span>);</span><br><span class="line">        taskExecutor.initialize();</span><br><span class="line">        <span class="keyword">return</span> taskExecutor;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() &#123;</span><br><span class="line">        <span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ch2.taskexecutor;</span><br><span class="line"><span class="comment">//组件声明类</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"><span class="comment">//异步声明,如果在方法表示是异步方法，如果在类表示异步类。</span></span><br><span class="line"><span class="comment">//这里的方法自动被注入使用ThreadPoolTaskExecutor作为TaskExecutor（线程池）</span></span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Async;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//声明为组件</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AsyncService</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">     </span><br><span class="line">    <span class="comment">//异步声明,如果在方法处表示是异步方法，如果在类处表示异步类（所有的方法都是异步方法）。</span></span><br><span class="line">    <span class="comment">//这里的方法自动被注入使用ThreadPoolTaskExecutor作为TaskExecutor（线程池）</span></span><br><span class="line">    <span class="meta">@Async</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">executorAsyncTask</span><span class="params">(Integer i)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;执行异步：&quot;</span> + i);</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">     </span><br><span class="line">    <span class="comment">//异步声明,如果在方法处表示是异步方法，如果在类处表示异步类（所有的方法都是异步方法）。</span></span><br><span class="line">    <span class="comment">//这里的方法自动被注入使用ThreadPoolTaskExecutor作为TaskExecutor（线程池）</span></span><br><span class="line">    <span class="meta">@Async</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">executorAsyncTaskPlus</span><span class="params">(Integer i)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;执行异步任务+1: &quot;</span> + (i+<span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ch2.taskexecutor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.AnnotationConfigApplicationContext;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">     </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">         </span><br><span class="line">        AnnotationConfigApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(TaskExecutorConfig.class);</span><br><span class="line">        AsyncService asyncService = context.getBean(AsyncService.class);</span><br><span class="line">         </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i&lt;<span class="number">10</span>; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            asyncService.executorAsyncTask(i);</span><br><span class="line">            asyncService.executorAsyncTaskPlus(i);</span><br><span class="line">        &#125;</span><br><span class="line">         </span><br><span class="line">        context.close();</span><br><span class="line">         </span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">执行异步：0</span><br><span class="line">执行异步任务+1: 1</span><br><span class="line">执行异步任务+1: 3</span><br><span class="line">执行异步：3</span><br><span class="line">执行异步任务+1: 4</span><br><span class="line">执行异步任务+1: 5</span><br><span class="line">执行异步：2</span><br><span class="line">执行异步：4</span><br><span class="line">执行异步任务+1: 6</span><br><span class="line">执行异步：5</span><br><span class="line">执行异步：1</span><br><span class="line">执行异步任务+1: 2</span><br><span class="line">执行异步任务+1: 8</span><br><span class="line">执行异步：7</span><br><span class="line">执行异步任务+1: 9</span><br><span class="line">执行异步任务+1: 7</span><br><span class="line">执行异步任务+1: 10</span><br><span class="line">执行异步：6</span><br><span class="line">执行异步：9</span><br><span class="line">执行异步：8</span><br></pre></td></tr></table></figure>
-
-
+          <h2 id="1-spingboot对DELETE和PUT支持的有限"><a href="#1-spingboot对DELETE和PUT支持的有限" class="headerlink" title="1 spingboot对DELETE和PUT支持的有限"></a>1 spingboot对DELETE和PUT支持的有限</h2><p>如果非要使用put 和delete方法，可以用Body的json格式传参，也可以使用resturl传参</p>
+<p><img src="D:\笔记\图片\image-20200720112218237.png" alt="image-20200720112218237"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/springboot%20DELETE%20%E6%96%B9%E6%B3%95%E4%BC%A0%E5%8F%82%E7%9A%84%E6%96%B9%E5%BC%8F/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1252,7 +371,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-11-24 13:34:11" itemprop="dateCreated datePublished" datetime="2020-11-24T13:34:11+08:00">2020-11-24</time>
+      <time title="Created: 2020-11-24 13:40:47" itemprop="dateCreated datePublished" datetime="2020-11-24T13:40:47+08:00">2020-11-24</time>
     </span>
 
   
@@ -1267,17 +386,521 @@
     <div class="post-body" itemprop="articleBody">
           <p>用惯了SpringMVC。SpringMVC中对PUT DELETE方式不支持，要加入HiddenHttpMethodFilter，在前端将PUT DELETE请求改为type:”POST”,data:{_method:”DELETE}才可以接收（详见本博客另一篇博文）。</p>
 <p>本以为SpringBoot继承了SpringMVC，一顿乱搞，碰了些壁，在这里和大家分享一下：</p>
-<ul>
-<li><p>1.SpringBoot已经默认引入了HiddenHttpMethodFilter，可在SpringBoot启动日志里看到该Filter的启动信息。</p>
-</li>
-<li><p>2.Delete方式有Entity Body，但是该方法传递Entity Body没有明确定义的语义，所以有些服务器实现会丢弃/忽略DELETE请求的entity body，或者拒绝该请求。所以Delete请求中，不要把数据放到Entity Body中。</p>
-</li>
-<li><p>3.非常坑的一点是，Get没有Entity Body，在ajax中写入data来传参，会直接把参数拼接到url后面。Delete方式却不可以。所以使用DELETE方式请求时，要手动将参数拼接到url中，而非写到data中。</p>
-</li>
-<li><p>4.有个事情没搞明白，POST请求中，如果我把参数同时写到url和entity body中，后台程序会识别哪个？或优先识别哪个？我用restclient测试时，发现识别url后的参数而非entity body中的，显然是有问题的。所以想跟大家一起讨论下。</p>
-</li>
-</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/SpringBoot%E4%BD%BF%E7%94%A8Delete%E6%96%B9%E5%BC%8F%E6%8E%A5%E6%94%B6%E8%AF%B7%E6%B1%82%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
 
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/springboot%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolTaskExecutor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/24/springboot%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolTaskExecutor/" class="post-title-link" itemprop="url">springboot： 线程池ThreadPoolTaskExecutor</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-11-24 13:40:41" itemprop="dateCreated datePublished" datetime="2020-11-24T13:40:41+08:00">2020-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="82"><a href="#82" class="headerlink" title="82"></a>82</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> Executor <span class="title">getAsyncExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();</span><br><span class="line">     executor.setCorePoolSize(<span class="number">2</span>);<span class="comment">//核心线程大小</span></span><br><span class="line">     executor.setMaxPoolSize(<span class="number">2</span>);<span class="comment">//最大线程大小</span></span><br><span class="line">     executor.setQueueCapacity(<span class="number">500</span>);<span class="comment">//d队列最大容量</span></span><br><span class="line">executor.setThreadNamePrefix(<span class="string">&quot;Gith&quot;</span>);</span><br><span class="line">      executor.setKeepAliveSeconds(<span class="number">3000</span>);<span class="comment">//最大存活 时间</span></span><br><span class="line">     executor.initialize();</span><br><span class="line">     executor.submit(<span class="keyword">new</span> ThreadDemo());</span><br><span class="line">     <span class="keyword">return</span> executor;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/springboot%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolTaskExecutor/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/springboot%E4%B8%AD%E7%9A%84@DeleteMapping%E6%B3%A8%E8%A7%A3%E6%97%A0%E6%B3%95%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0%E5%80%BC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/24/springboot%E4%B8%AD%E7%9A%84@DeleteMapping%E6%B3%A8%E8%A7%A3%E6%97%A0%E6%B3%95%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0%E5%80%BC/" class="post-title-link" itemprop="url">springboot中的@DeleteMapping注解无法获取参数值</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-11-24 13:40:34" itemprop="dateCreated datePublished" datetime="2020-11-24T13:40:34+08:00">2020-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="springboot中的-DeleteMapping注解无法获取参数值"><a href="#springboot中的-DeleteMapping注解无法获取参数值" class="headerlink" title="springboot中的@DeleteMapping注解无法获取参数值"></a><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000011211490">springboot中的@DeleteMapping注解无法获取参数值</a></h1><p><a target="_blank" rel="noopener" href="https://segmentfault.com/t/springboot">springboot</a></p>
+<blockquote>
+<p>最近在试试使用springboot编写一个demo进行测试，测试过程中发现@DeleteMapping注解有一些问题，现在汇总如下，有大神指点一下</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/springboot%E4%B8%AD%E7%9A%84@DeleteMapping%E6%B3%A8%E8%A7%A3%E6%97%A0%E6%B3%95%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0%E5%80%BC/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/Spring%20SmartLifecycle%20%E5%9C%A8%E5%AE%B9%E5%99%A8%E6%89%80%E6%9C%89bean%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%8C%E6%AF%95%E6%89%A7%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/24/Spring%20SmartLifecycle%20%E5%9C%A8%E5%AE%B9%E5%99%A8%E6%89%80%E6%9C%89bean%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%8C%E6%AF%95%E6%89%A7%E8%A1%8C/" class="post-title-link" itemprop="url">Spring SmartLifecycle 在容器所有bean加载和初始化完毕执行</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-11-24 13:40:27" itemprop="dateCreated datePublished" datetime="2020-11-24T13:40:27+08:00">2020-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Spring-SmartLifecycle-在容器所有bean加载和初始化完毕执行"><a href="#Spring-SmartLifecycle-在容器所有bean加载和初始化完毕执行" class="headerlink" title="Spring SmartLifecycle 在容器所有bean加载和初始化完毕执行"></a>Spring SmartLifecycle 在容器所有bean加载和初始化完毕执行</h1><p>在使用Spring开发时，我们都知道，所有bean都交给Spring容器来统一管理，其中包括没一个bean的加载和初始化。<br>有时候我们需要在Spring加载和初始化所有bean后，接着执行一些任务或者启动需要的异步服务，这样我们可以使用 SmartLifecycle 来做到。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/Spring%20SmartLifecycle%20%E5%9C%A8%E5%AE%B9%E5%99%A8%E6%89%80%E6%9C%89bean%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%8C%E6%AF%95%E6%89%A7%E8%A1%8C/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">SQLAlchemy缓存问题</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-11-24 13:40:07" itemprop="dateCreated datePublished" datetime="2020-11-24T13:40:07+08:00">2020-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>最近在排查一个问题，为了方便说明，我们假设现在有如下一个API：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E6%8A%8AObject%E7%B1%BB%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%AE%9E%E4%BD%93%E7%B1%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/24/%E6%8A%8AObject%E7%B1%BB%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%AE%9E%E4%BD%93%E7%B1%BB/" class="post-title-link" itemprop="url">把Object类转换为实体类</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-11-24 13:39:59" itemprop="dateCreated datePublished" datetime="2020-11-24T13:39:59+08:00">2020-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="把Object类转换为实体类"><a href="#把Object类转换为实体类" class="headerlink" title="把Object类转换为实体类"></a>把Object类转换为实体类</h1><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>在用SpringBoot写controller的时候，需要接受一个map的Object，之后要把Object转为特定的类，代码如下：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/%E6%8A%8AObject%E7%B1%BB%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%AE%9E%E4%BD%93%E7%B1%BB/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/" class="post-title-link" itemprop="url">符合规范的url</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-11-24 13:39:50" itemprop="dateCreated datePublished" datetime="2020-11-24T13:39:50+08:00">2020-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="符合规范的url"><a href="#符合规范的url" class="headerlink" title="符合规范的url"></a>符合规范的url</h1><h1 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h1><p>进公司没有多久遇到一个问题，定义的url会被大神吐槽说是很渣。之前从来没有注意这块，今天把我们团队的url规范分享给大家。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/24/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">使用Mapstruct来进行实体与模型之间的映射操作</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-11-24 13:39:19" itemprop="dateCreated datePublished" datetime="2020-11-24T13:39:19+08:00">2020-11-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="使用Mapstruct来进行实体与模型之间的映射操作"><a href="#使用Mapstruct来进行实体与模型之间的映射操作" class="headerlink" title="使用Mapstruct来进行实体与模型之间的映射操作"></a>使用Mapstruct来进行实体与模型之间的映射操作</h1><p>在一个成熟可维护的工程中，细分模块后，domian工程最好不要被其他工程依赖，但是实体类一般存于domain之中，这样其他工程想获取实体类数据时就需要在各自工程写model，自定义model可以根据自身业务需要而并不需要映射整个实体属性。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/24/%E4%BD%BF%E7%94%A8Mapstruct%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%A8%A1%E5%9E%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 

@@ -24,15 +24,15 @@
     var CONFIG = {"hostname":"palmbeach.gitee.io","root":"/","scheme":"Mist","version":"8.0.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="把Object类转换为实体类问题描述在用SpringBoot写controller的时候，需要接受一个map的Object，之后要把Object转为特定的类，代码如下： 1234567public boolean postArticle(@RequestBody Map&lt;String, Object&gt; map) &amp;#123;        ArticleInfo articleInfo">
+  <meta name="description" content="把Object类转换为实体类问题描述在用SpringBoot写controller的时候，需要接受一个map的Object，之后要把Object转为特定的类，代码如下：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="把Object类转换为实体类">
 <meta property="og:url" content="https://palmbeach.gitee.io/2020/11/24/%E6%8A%8AObject%E7%B1%BB%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%AE%9E%E4%BD%93%E7%B1%BB/index.html">
 <meta property="og:site_name" content="PALM BEACH">
-<meta property="og:description" content="把Object类转换为实体类问题描述在用SpringBoot写controller的时候，需要接受一个map的Object，之后要把Object转为特定的类，代码如下： 1234567public boolean postArticle(@RequestBody Map&lt;String, Object&gt; map) &amp;#123;        ArticleInfo articleInfo">
+<meta property="og:description" content="把Object类转换为实体类问题描述在用SpringBoot写controller的时候，需要接受一个map的Object，之后要把Object转为特定的类，代码如下：">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-11-24T05:35:39.250Z">
-<meta property="article:modified_time" content="2020-11-24T05:35:39.250Z">
+<meta property="article:published_time" content="2020-11-24T05:39:59.250Z">
+<meta property="article:modified_time" content="2020-11-24T05:39:59.254Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 
@@ -230,7 +230,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-11-24 13:35:39" itemprop="dateCreated datePublished" datetime="2020-11-24T13:35:39+08:00">2020-11-24</time>
+      <time title="Created: 2020-11-24 13:39:59" itemprop="dateCreated datePublished" datetime="2020-11-24T13:39:59+08:00">2020-11-24</time>
     </span>
 
   
@@ -244,6 +244,7 @@
     
     <div class="post-body" itemprop="articleBody">
         <h1 id="把Object类转换为实体类"><a href="#把Object类转换为实体类" class="headerlink" title="把Object类转换为实体类"></a>把Object类转换为实体类</h1><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>在用SpringBoot写controller的时候，需要接受一个map的Object，之后要把Object转为特定的类，代码如下：</p>
+<a id="more"></a>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">postArticle</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String, Object&gt; map)</span> </span>&#123;</span><br><span class="line">        ArticleInfo articleInfo = (ArticleInfo) map.get(<span class="string">&quot;articleInfo&quot;</span>);</span><br><span class="line">        ArticleContent articleContent = (ArticleContent) map.get(<span class="string">&quot;articleContent&quot;</span>);</span><br><span class="line">        System.out.println(articleInfo + <span class="string">&quot; &quot;</span> + articleContent);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="number">123456</span></span><br></pre></td></tr></table></figure>
 
 <p>之后爆出异常：</p>
@@ -274,13 +275,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/" rel="prev" title="SQLAlchemy缓存问题">
-                  <i class="fa fa-chevron-left"></i> SQLAlchemy缓存问题
+                <a href="/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/" rel="prev" title="符合规范的url">
+                  <i class="fa fa-chevron-left"></i> 符合规范的url
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/11/24/%E7%AC%A6%E5%90%88%E8%A7%84%E8%8C%83%E7%9A%84url/" rel="next" title="符合规范的url">
-                  符合规范的url <i class="fa fa-chevron-right"></i>
+                <a href="/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/" rel="next" title="SQLAlchemy缓存问题">
+                  SQLAlchemy缓存问题 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
