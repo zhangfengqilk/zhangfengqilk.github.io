@@ -159,7 +159,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -200,6 +200,162 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/26/Ubuntu-%E4%B8%8B%E6%90%AD%E5%BB%BAqt%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PALM BEACH">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/26/Ubuntu-%E4%B8%8B%E6%90%AD%E5%BB%BAqt%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/" class="post-title-link" itemprop="url">Ubuntu 下搭建qt交叉编译环境</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2020-11-26 17:23:52 / Modified: 17:26:00" itemprop="dateCreated datePublished" datetime="2020-11-26T17:23:52+08:00">2020-11-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Ubuntu下嵌入式arm板Qt环境搭建"><a href="#Ubuntu下嵌入式arm板Qt环境搭建" class="headerlink" title="Ubuntu下嵌入式arm板Qt环境搭建"></a>Ubuntu下嵌入式arm板Qt环境搭建</h1><p><img src="_v_images/20201126172540283_1553008364.png"></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40385285">四个程序员</a> 2018-05-02 18:09:07 <img src="_v_images/20201126172539983_1317354485.png"> 5861 <img src="_v_images/20201126172539682_707335713.png"> 收藏  20 </p>
+<p>分类专栏： <a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40385285/category_7493759.html">arm嵌入式linux</a></p>
+<p><strong>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/lpp0900320123/article/details/24876159">https://blog.csdn.net/lpp0900320123/article/details/24876159</a></strong></p>
+<p><strong>系统环境：</strong></p>
+<p>主机操作系统：ubuntu14.04</p>
+<p>主机编译器：gcc4.8.4</p>
+<p>交叉编译器：arm-linux-gcc-4.8</p>
+<p><strong>一、前期准备工作</strong></p>
+<pre><code>  1、 由于开发板普遍使用的是arm开发体系结构，所以arm板开发首先涉及到的就是交叉编译工具的建立。交叉编译就是在一种平台上编译出能运行在体系结构不同的另一种平台上的程序。
+
+要准备的安装包：**gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.gz**（交叉编译环境，一般情况下arm板相关公司会提供，具体版本根据实际arm板为准）
+
+   2、编译linux版本的qt需要使用qt源代码包：**qt-everywhere-opensource-src-4.8.6.tar.gz**
+
+   3、**qt-creator-linux-x86-opensource-2.5.2.bin**（能够在linux系统直接安装）
+
+   4、**tslib-1.4.tar.gz**（触摸屏校验工具）</code></pre>
+<p><strong>二、环境搭建</strong></p>
+<p><strong>1、交叉编译器</strong></p>
+<p>   （1）将gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.gz复制到usr/local中</p>
+<pre><code>  （2）在ubuntu终端输入tar vxzf gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.gz
+
+  （3）配置环境变量，在控制台输入 gedit /root/.bashrc，在最后一行输入
+
+            export PATH=/usr/local/gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux/bin:$PATH
+
+  （4）重新打开一个终端，使配置能够成功生效，输入 arm-linux-gnueabihf-gcc -v，出现下述信息表示交叉编译器已经配置成功
+
+       ![](_v_images/20201126172539281_193874550)</code></pre>
+<p><strong>2、安装触摸屏校验工具</strong></p>
+<p> （1）把tslib-1.4.tar.gz拷贝到Ubuntu，解压缩：tar vxzf tslib-1.4.tar.gz</p>
+<pre><code>  （2）进入tslib目录：cd tslib
+
+  （3） #./autogen.sh 
+
+  （4） #./configure     --prefix=/usr/local/tslib --host=arm-linux ac\_cv\_func\_malloc\_0_nonnull=yes 
+
+  （5）make
+
+  （6）make intsall </code></pre>
+<p>上述步骤常出现的错误：</p>
+<pre><code>    执行第三步，./autogen.sh时提示[./autogen.sh: 4: autoreconf: not found](http://blog.csdn.net/imxiangzi/article/details/7452982)
+
+    解决办法：sudo apt-get install autoconf automake libtool
+
+    如果没有其他错误，则在usr/local下生成tslib文件夹，这就是以后用作出arm板触摸屏校验的文件</code></pre>
+<p><img src="_v_images/20201126172538774_1926796659"></p>
+<p><strong>3、安装QtCreator</strong></p>
+<p>qt-creator-linux-x86-opensource-2.5.2.bin 拷贝到Ubuntu系统中，在终端中把路径切换到qt-creator-linux-x86-opensource-2.5.2.bin所在的路径，运行命令：./qt-creator-linux-x86-opensource-2.5.2.bin  就会出现图形安装界面；安装顺序和window下qtcreator差不多，点击下一步即可安装成功。</p>
+<pre><code>    注意：安装的版本要和你的操作系统相匹配，32位的系统下对应32位的应用程序。</code></pre>
+<p><img src="_v_images/20201126172538471_1455320137"></p>
+<p><strong>4、编译Qt库源码</strong></p>
+<p>将qt-everywhere-opensource-src-4.8.6.tar.gz根据需求不同解压三份分别命名为qt-pc,qt-qvfb,qt-arm</p>
+<p><strong>4.1编译qt-pc版</strong></p>
+<p>进入qt-pc目录，执行如下操作：</p>
+<p>#./configure</p>
+<h1 id="make"><a href="#make" class="headerlink" title="make"></a>make</h1><h1 id="make-install"><a href="#make-install" class="headerlink" title="make install"></a>make install</h1><p>编译过程中出现的问题：</p>
+<p>出错：Basic XLibfunctionality test failed!</p>
+<p>这个错误主要是因为，XLib库没有安装，所以在编译X11平台时，应该保证，以下命令正确执行：sudo apt-get install libx11-dev  libxext-dev libxtst-dev</p>
+<p>注意：可以使用 make confclean 命令 把以前的配置信息清除掉，然后再重新配置。</p>
+<p>4.2编译qt-qvfb</p>
+<p>进入qt-qvfb目录，执行如下操作：</p>
+<h1 id="configure-embedded-x86-qt-gfx-qvfb-qt-kbd-qvfb-qt-mouse-qvfb"><a href="#configure-embedded-x86-qt-gfx-qvfb-qt-kbd-qvfb-qt-mouse-qvfb" class="headerlink" title="./configure  -embedded x86    -qt-gfx-qvfb    -qt-kbd-qvfb   -qt-mouse-qvfb"></a>./configure  -embedded x86    -qt-gfx-qvfb    -qt-kbd-qvfb   -qt-mouse-qvfb</h1><h1 id="make-1"><a href="#make-1" class="headerlink" title="make"></a>make</h1><h1 id="make-install-1"><a href="#make-install-1" class="headerlink" title="make install"></a>make install</h1><p>编译安装PC版中的 qvfb：</p>
+<p>进入qt-pc/tools/qvfb/目录，执行如下操作：</p>
+<p>#make</p>
+<p>编译完毕，将qt-pc/bin目录下的qvfb文件复制到/usr/local/Trolltech/QtEmbedded-4.8.6/bin目录。</p>
+<p>编译qvfb时，一般会出现很多错误，解决办法请见</p>
+<p><strong><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40385285/article/details/79760970">https://blog.csdn.net/weixin_40385285/article/details/79760970</a></strong></p>
+<p>注：qvfb为模拟arm输出环境，可先在pc端进行qvfb测试，然后再拷贝到arm板上，运行结果相同</p>
+<p>4.2编译qt-arm</p>
+<p>进入qt-arm目录，执行如下操作：</p>
+<p>sudo ./configure -prefix /usr/local/Trolltech/QtEmbedded-4.8.6-arm -shared -release -opensource -little-endian -embedded arm -no-qt3support -lrt -xplatform qws/linux-arm-g++</p>
+<p> 一般情况下会出现错误，具体解决办法可参考下述网站：</p>
+<p> <strong><a target="_blank" rel="noopener" href="https://blog.csdn.net/cyf15238622067/article/details/53542049">https://blog.csdn.net/cyf15238622067/article/details/53542049</a></strong></p>
+<p>安装完成后，在/usr/local/Trolltech目录中有三个文件夹：Qt-4.8.6、QtEmbedded-4.8.6、QtEmbedded-4.8.6-arm。</p>
+<p><img src="_v_images/20201126172537955_124874065"></p>
+<p>现在qt编译工具有三个版本：</p>
+<p><img src="_v_images/20201126172537552_481977011"></p>
+<p>其中，Qt-4.8.6为桌面版本，可以直接运行qt程序，QtEmbedded-4.8.6为模拟arm板版本，需要借助qvfb才能成功运行，QtEmbedded-4.8.6-arm为arm版本，不能直接运行，可以构建，需要拷贝到arm板才能正常运行。</p>
+<p><strong>（1）qt-pc正常运行版本</strong></p>
+<p><strong><img src="_v_images/20201126172537047_1667826925"></strong></p>
+<p>（2）qt-qvfb模拟版本</p>
+<p>注：qvfb版本运行前，需要先打开qvfb</p>
+<p><img src="_v_images/20201126172536537_374740616"></p>
+<p>之后再配置参数</p>
+<p><img src="_v_images/20201126172535922_488375451"></p>
+<p>然后才能正常运行</p>
+<p><img src="_v_images/20201126172534713_366261353"></p>
+<p><strong>（3）qt-arm版本不能直接运行，只能拷贝到arm板上运行</strong></p>
+<p><strong><img src="_v_images/20201126172533284_285822795"></strong></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
     <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/26/python-opencv%E6%8A%A5%E9%94%99%EF%BC%9AQObject-moveToThread-Current-thread/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -226,7 +382,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2020-11-26 13:36:50 / Modified: 13:38:12" itemprop="dateCreated datePublished" datetime="2020-11-26T13:36:50+08:00">2020-11-26</time>
+      <time title="Created: 2020-11-26 13:36:50 / Modified: 13:38:23" itemprop="dateCreated datePublished" datetime="2020-11-26T13:36:50+08:00">2020-11-26</time>
     </span>
 
   
@@ -929,78 +1085,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/11/24/Spring%20SmartLifecycle%20%E5%9C%A8%E5%AE%B9%E5%99%A8%E6%89%80%E6%9C%89bean%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%8C%E6%AF%95%E6%89%A7%E8%A1%8C/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://palmbeach.gitee.io/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PALM BEACH">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">SQLAlchemy缓存问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-11-24 13:40:07" itemprop="dateCreated datePublished" datetime="2020-11-24T13:40:07+08:00">2020-11-24</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>最近在排查一个问题，为了方便说明，我们假设现在有如下一个API：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/24/SQLAlchemy%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
